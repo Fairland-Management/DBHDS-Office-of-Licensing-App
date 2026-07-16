@@ -1,38 +1,34 @@
 #!/usr/bin/env python3
 """
-Render the "So You Want to Get Licensed" podcast to a real studio-voice MP3.
+Render the podcast LIBRARY to studio-voice MP3s — one file per episode.
 
-Two hosts, two distinct AI voices, stitched into one file: podcast.mp3
-Drop podcast.mp3 next to DBHDS_Exam_Trainer.html and the app's 🎧 button lights up.
+Outputs (drop these next to DBHDS_Exam_Trainer.html; the app auto-detects them):
+    podcast.mp3            -> "The Full Journey"
+    podcast-caps.mp3       -> "Corrective Action Plans"
+    podcast-crisis.mp3     -> "Crisis Services"
+    podcast-incidents.mp3  -> "Death & Serious Incident Reporting"
+    podcast-rights.mp3     -> "Human Rights & Home-Based Services"
 
-------------------------------------------------------------------------
-QUICK START (OpenAI voices — most natural, ~2 minutes):
-    pip install openai pydub
-    # ffmpeg must be installed too:  macOS ->  brew install ffmpeg
+QUICK START (OpenAI voices, most natural):
+    pip install openai pydub          # also install ffmpeg (macOS: brew install ffmpeg)
     export OPENAI_API_KEY="sk-...your key..."
-    python generate_podcast_audio.py
+    python generate_podcast_audio.py                 # renders ALL episodes
+    python generate_podcast_audio.py podcast-caps    # or just one, by base name
 
-Prefer ElevenLabs? Set PROVIDER = "elevenlabs" below and:
-    pip install elevenlabs pydub
-    export ELEVENLABS_API_KEY="...your key..."
-------------------------------------------------------------------------
-No coding needed beyond pasting your key. The script does the rest.
+ElevenLabs instead? set PROVIDER="elevenlabs" and export ELEVENLABS_API_KEY=...
+Cost: roughly 10-25 cents per episode on OpenAI.
 """
-
 import os, sys, io
 
 PROVIDER = "openai"          # "openai" or "elevenlabs"
-
-# Voice choices (change to taste)
-OPENAI_VOICE_MAYA  = "nova"    # warm, curious
-OPENAI_VOICE_THEO  = "onyx"    # deeper, steady
+OPENAI_VOICE_MAYA  = "nova"
+OPENAI_VOICE_THEO  = "onyx"
 ELEVEN_VOICE_MAYA  = "Rachel"
 ELEVEN_VOICE_THEO  = "Adam"
+GAP_MS = 350
 
-GAP_MS = 350   # pause between lines (natural rhythm)
-
-# ---- The script: (speaker, text) in order --------------------------------
-LINES = [
+EPISODES = {
+"podcast": [
  ("M","Okay Theo, real talk. Someone wakes up tomorrow and says, I want to open a group home for adults with developmental disabilities. Where do they even start?"),
  ("T","You'd think step one is paperwork. It's not. Step one is a classroom."),
  ("M","A classroom? Come on."),
@@ -99,39 +95,131 @@ LINES = [
  ("M","From I have an idea to trusted provider."),
  ("T","That's the arc. And every rule we just walked through? It was never really about paperwork. It was about the person who gets to live a good life, because somebody did this right."),
  ("M","Okay. That actually gave me chills. Roll the credits."),
-]
+],
+"podcast-caps": [
+ ("M","Worst case. An inspector finds a problem. Is that the end of the road?"),
+ ("T","Not at all. It just means you owe a Corrective Action Plan. People call it a cap. It's your written promise to fix it."),
+ ("M","So getting cited is normal?"),
+ ("T","Honestly, it's expected. What matters is how you respond. A good cap turns a bad day into a non-issue."),
+ ("M","How long do I have to write this thing?"),
+ ("T","Fifteen business days from the licensing report. That's the clock."),
+ ("M","And if I need more time?"),
+ ("T","You can ask for one extension, up to ten more business days, but you have to ask before it's due. And there's no extension for health-and-safety problems."),
+ ("M","What does a good cap actually look like?"),
+ ("T","Three ingredients. What you'll fix, by when, and who's responsible. Miss any one and it comes right back."),
+ ("M","So vague promises don't fly."),
+ ("T","Right. We'll do better is not a plan. The nurse re-trains staff by March first, and the manager audits monthly. That's a plan."),
+ ("M","I submit it in the portal, and the status says Returned. Did they reject me?"),
+ ("T","That's the trap everyone falls for. Returned means you returned it to them. It's with the Office of Licensing now, under review."),
+ ("M","So Returned is actually good?"),
+ ("T","It means it's in their court. And remember, saving is not submitting. If you only save, it never goes anywhere, and you can rack up more citations."),
+ ("M","What if it's something serious. A safety issue?"),
+ ("T","Then it's faster, no extension, and they always come back to check you actually did it. A follow-up inspection within thirty business days of accepting your plan."),
+ ("M","And if I flat-out disagree with the citation?"),
+ ("T","You can dispute it. Talk to your specialist first, then their supervisor, and the Director makes the final call. But the clock keeps ticking, so don't sit on it."),
+],
+"podcast-crisis": [
+ ("M","Virginia rebuilt its whole crisis system. What's the big idea?"),
+ ("T","Three doors. Someone to call, someone to respond, somewhere to go. A call center, a mobile team, and a place that takes you in."),
+ ("M","No wrong door."),
+ ("T","Exactly. However you enter, you get help."),
+ ("M","Does the Office of Licensing license all of these?"),
+ ("T","Most of them, but two it does not. The regional crisis call centers, and the crisis intervention team assessment centers."),
+ ("M","Why not those two?"),
+ ("T","They connect people to licensed services, but they're overseen differently. It's a classic trick question, so lock in the two."),
+ ("M","What exactly is a crisis receiving center?"),
+ ("T","A place you can walk into, get assessed and stabilized, for up to twenty-three hours and fifty-nine minutes. Center-based, with recliners instead of beds."),
+ ("M","Under a day, by design."),
+ ("T","Right. Short observation to head off an unnecessary hospitalization."),
+ ("M","And if someone needs to stay longer than a day?"),
+ ("T","That's a residential crisis stabilization unit. Short-term, a few days. But here's the number that matters. No more than sixteen beds."),
+ ("M","What happens at seventeen?"),
+ ("T","It crosses a federal line. It becomes an institution for mental diseases, and Medicaid won't pay for adults twenty-one to sixty-four. So sixteen is the ceiling."),
+ ("M","Anything special for people with developmental disabilities?"),
+ ("T","Yes, the REACH program. A statewide crisis system just for them, running since two thousand twelve. Mobile teams, community stabilization, and short crisis-home stays."),
+ ("M","So crisis care isn't one-size-fits-all."),
+ ("T","Never. And remember, even a licensed crisis unit still reports serious incidents within twenty-four hours, just like everyone else."),
+],
+"podcast-incidents": [
+ ("M","Something goes wrong on a shift. What's the very first duty?"),
+ ("T","Report it. Fast. Serious incidents go into the reporting system within twenty-four hours."),
+ ("M","Twenty-four hours from when it happened?"),
+ ("T","From when you discover it. The clock starts at discovery, not at the event."),
+ ("M","Are all incidents treated the same?"),
+ ("T","No, there are three levels. Level one is minor. It's not reported to the system, but you review those quarterly. Levels two and three are the ones you report within twenty-four hours."),
+ ("M","So level one you track, two and three you report."),
+ ("T","Exactly. Knowing which level something is. That's the whole skill."),
+ ("M","What makes something a level three, the top level?"),
+ ("T","Three things. A death, a sexual assault, or a suicide attempt that leads to a hospital admission."),
+ ("M","Those are the heaviest."),
+ ("T","And level three counts even if it happened off your premises. That's what sets it apart."),
+ ("M","Where does the report actually go?"),
+ ("T","A system called Chris. But to get in, you pass through a secure login portal called Delta."),
+ ("M","And I heard Chris feeds two different offices?"),
+ ("T","It does. Deaths and serious incidents go to the Office of Licensing. Abuse and neglect go to the Office of Human Rights. Reporting to one does not cover the other."),
+ ("M","Once I've reported, am I done?"),
+ ("T","Not quite. For serious ones, you do a root cause analysis. You figure out why it happened, within thirty days."),
+ ("M","So report fast, then dig deep."),
+ ("T","Exactly. Report in twenty-four hours, understand it within thirty days. And a team called the Incident Management Unit reviews every single one, and can follow up."),
+],
+"podcast-rights": [
+ ("M","There's a whole office just for human rights?"),
+ ("T","There is. It protects the rights of people receiving services. Freedom from abuse, dignity, choice."),
+ ("M","So they swoop in and rescue people?"),
+ ("T","Common misconception. They oversee and enforce. They don't provide emergency care, they don't run a hotline, and they can't remove someone from a setting."),
+ ("M","If there's an abuse allegation, does that office investigate it?"),
+ ("T","Usually the provider investigates its own, with a trained investigator. The office reviews it and can step in."),
+ ("M","And the clock?"),
+ ("T","Abuse, neglect, or exploitation gets reported within twenty-four hours. The written investigation and the director's decision come within ten working days."),
+ ("M","New providers have a whole stack of human-rights policies. Are they all due at once?"),
+ ("T","Just one has to be approved before you're licensed. Your complaint resolution policy. The rest, your advocate reviews after your welcome letter."),
+ ("M","So don't panic about all of them up front."),
+ ("T","Right. Complaint resolution first. Everything else follows."),
+ ("M","Let's switch to the home side, the settings rule. What's it really about?"),
+ ("T","One sentence. A person on Medicaid home-and-community services gets to live a life like anyone else's. Same rights, same freedoms."),
+ ("M","Not an institution, again."),
+ ("T","Always. That thread runs through everything."),
+ ("M","What does that look like in a provider-run home?"),
+ ("T","A lease with real eviction protections. A bedroom you can lock. A say in your roommate. Food you can get any time. Visitors whenever you want."),
+ ("M","That's just a normal home."),
+ ("T","That's the entire point. And one thing can never be taken away. Physical accessibility."),
+ ("M","Who's behind all this. Who actually pays?"),
+ ("T","Three agencies. The federal one, C M S, funds it. The state Medicaid agency, D MAS, holds the money and the agreements. And D B H D S runs the day-to-day and licenses providers."),
+ ("M","Federal money, state agency, local operations."),
+ ("T","And you can't bill until you're compliant with the settings rule and enrolled. Compliance isn't paperwork. It's the door to getting paid."),
+],
+}
 
-def synth_openai(text, speaker):
+def synth_openai(text, spk):
     from openai import OpenAI
-    client = OpenAI()  # reads OPENAI_API_KEY
-    voice = OPENAI_VOICE_MAYA if speaker == "M" else OPENAI_VOICE_THEO
-    r = client.audio.speech.create(model="gpt-4o-mini-tts", voice=voice, input=text)
-    return r.content  # mp3 bytes
+    client = OpenAI()
+    voice = OPENAI_VOICE_MAYA if spk == "M" else OPENAI_VOICE_THEO
+    return client.audio.speech.create(model="gpt-4o-mini-tts", voice=voice, input=text).content
 
-def synth_eleven(text, speaker):
+def synth_eleven(text, spk):
     from elevenlabs.client import ElevenLabs
-    client = ElevenLabs()  # reads ELEVENLABS_API_KEY
-    voice = ELEVEN_VOICE_MAYA if speaker == "M" else ELEVEN_VOICE_THEO
-    audio = client.text_to_speech.convert(voice_id=voice, model_id="eleven_multilingual_v2", text=text)
-    return b"".join(audio)
+    client = ElevenLabs()
+    voice = ELEVEN_VOICE_MAYA if spk == "M" else ELEVEN_VOICE_THEO
+    return b"".join(client.text_to_speech.convert(voice_id=voice, model_id="eleven_multilingual_v2", text=text))
+
+def render(base, lines, synth):
+    from pydub import AudioSegment
+    ep = AudioSegment.silent(duration=300); gap = AudioSegment.silent(duration=GAP_MS)
+    for i,(spk,text) in enumerate(lines,1):
+        print(f"  [{i:>2}/{len(lines)}] {'Maya' if spk=='M' else 'Theo'}: {text[:52]}...")
+        ep += AudioSegment.from_file(io.BytesIO(synth(text,spk)), format="mp3") + gap
+    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), base+".mp3")
+    ep.export(out, format="mp3", bitrate="128k"); print(f"  -> {out}")
 
 def main():
-    from pydub import AudioSegment
-    synth = synth_openai if PROVIDER == "openai" else synth_eleven
-    key = "OPENAI_API_KEY" if PROVIDER == "openai" else "ELEVENLABS_API_KEY"
-    if not os.environ.get(key):
-        sys.exit(f"Set your API key first:  export {key}=...")
-
-    episode = AudioSegment.silent(duration=300)
-    gap = AudioSegment.silent(duration=GAP_MS)
-    for i, (spk, text) in enumerate(LINES, 1):
-        print(f"[{i:>2}/{len(LINES)}] {('Maya' if spk=='M' else 'Theo')}: {text[:60]}...")
-        clip = AudioSegment.from_file(io.BytesIO(synth(text, spk)), format="mp3")
-        episode += clip + gap
-
-    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "podcast.mp3")
-    episode.export(out, format="mp3", bitrate="128k")
-    print(f"\n✅ Done → {out}\nDrop it next to the app; the 🎧 button in Story Mode will light up.")
+    synth = synth_openai if PROVIDER=="openai" else synth_eleven
+    key = "OPENAI_API_KEY" if PROVIDER=="openai" else "ELEVENLABS_API_KEY"
+    if not os.environ.get(key): sys.exit(f"Set your API key first:  export {key}=...")
+    want = sys.argv[1:] if len(sys.argv)>1 else list(EPISODES.keys())
+    for base in want:
+        if base not in EPISODES: print(f"(skipping unknown '{base}')"); continue
+        print(f"\n=== {base} ==="); render(base, EPISODES[base], synth)
+    print("\nAll done. Drop the .mp3 files next to the app; the studio button lights up per episode.")
 
 if __name__ == "__main__":
     main()

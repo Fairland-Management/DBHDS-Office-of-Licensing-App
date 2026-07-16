@@ -169,6 +169,7 @@
   .voicebar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px}
   .voicebar .vlbl{font-size:12px;font-weight:800;color:var(--muted)}
   .voicebar select{flex:1;min-width:110px;padding:7px 8px;font-size:12px}
+  .eppick{width:100%;padding:9px 10px;font-size:13px;font-weight:700;margin-bottom:10px;background:#20264d;color:var(--ink);border:1.5px solid #35407e;border-radius:12px}
   #podquiz{background:#191d3a;border:1.5px solid #34407e;border-radius:16px;padding:14px;margin:12px 0 4px;animation:pop .25s ease}
   .pqhead{font-weight:800;color:var(--brand2);font-size:13px;margin-bottom:8px}
   .pqq{font-weight:700;font-size:16px;margin-bottom:12px}
@@ -276,9 +277,10 @@
   <!-- STORY (two-host podcast) -->
   <div id="story" class="card" style="display:none">
     <div class="podhead">
-      <div><div class="podshow">🎙️ So You Want to Get Licensed</div><div class="podep" id="podep">Chapter 1</div></div>
+      <div><div class="podshow" id="podshow">🎙️ So You Want to Get Licensed</div><div class="podep" id="podep">Chapter 1</div></div>
       <div class="eq" id="eq"><span></span><span></span><span></span><span></span></div>
     </div>
+    <select id="epPick" class="eppick" onchange="loadEpisode(+this.value)" title="Choose an episode"></select>
     <div class="voicebar">
       <span class="vlbl">🎙 Maya</span>
       <select id="voiceMaya" onchange="setVoice('A')" title="Maya's voice"></select>
@@ -951,9 +953,10 @@ function startGlossary(){const el=$('gloss');el.innerHTML='';
    d.innerHTML='<b>'+g.a+'</b> &mdash; <span class="gf">'+g.f+'</span><div class="gd">'+g.d+'</div>';el.appendChild(d);});
   show('glossary');}
 
-/* ================= STORY MODE — TWO-HOST PODCAST ================= */
+/* ================= STORY MODE — TWO-HOST PODCAST LIBRARY ================= */
 let voiceA=null, voiceB=null, allVoices=[];
 const hasTTS=('speechSynthesis' in window);
+const HOSTS={M:"Maya",T:"Theo"};
 function rankVoice(v){let s=0;const n=((v.name||'')+' '+(v.voiceURI||''));
   if(/natural|neural|online/i.test(n))s+=100; if(/premium|enhanced/i.test(n))s+=60; if(/siri/i.test(n))s+=50; if(/google/i.test(n))s+=25;
   if(/^en[-_]US/i.test(v.lang))s+=15; else if(/^en/i.test(v.lang))s+=8; return s;}
@@ -1075,44 +1078,180 @@ const EPISODE={ title:"So You Want to Get Licensed", hosts:{M:"Maya",T:"Theo"}, 
   {w:"M",t:"Okay. That actually gave me chills. Roll the credits."},
  ]},
 ]};
-let POD=[], chapterStart=[], podRenderedCi=-1, pIdx=0, pPlaying=false, pRate=1, podGen=0, podTimer=null;
-function buildPod(){POD=[];chapterStart=[];EPISODE.chapters.forEach((c,ci)=>{chapterStart[ci]=POD.length;c.lines.forEach((l,li)=>POD.push({w:l.w,t:l.t,ci,li}));});}
-function startStory(){ if(!POD.length)buildPod(); pIdx=0;pPlaying=false;pRate=1;podRenderedCi=-1;
-  $('podspeed').textContent='1×';$('podplay').textContent='▶';$('eq').classList.remove('on');
-  $('podchips').innerHTML=EPISODE.chapters.map((c,i)=>'<button class="chip" onclick="jumpChapter('+i+')">'+(i+1)+'</button>').join('');
-  var sa=$('studioAudio'); if(sa&&!sa.dataset.init){sa.dataset.init='1';
-    var cands=['podcast.mp3','podcast.m4a','podcast.wav','podcast.ogg'], ci=0;
-    sa.onloadedmetadata=function(){$('studiobtn').style.display='inline-flex';};
-    sa.onerror=function(){ ci++; if(ci<cands.length){sa.src=cands[ci];} else {$('studiobtn').style.display='none';} };
-    sa.onended=function(){$('studiobtn').textContent='🎧';};
-    sa.src=cands[0];}
-  loadVoices(); show('story'); renderPod(); }
-let studioMode=false;
-function fmtT(s){s=Math.max(0,s|0);var m=(s/60)|0,r=s%60;return m+':'+(r<10?'0':'')+r;}
-function studioTimeUpdate(){ var sa=$('studioAudio'); if(!sa||!sa.duration)return;
-  $('scrubfill').style.width=Math.round(sa.currentTime/sa.duration*100)+'%';
-  $('podline').textContent=fmtT(sa.currentTime)+' / '+fmtT(sa.duration); }
-function enterStudio(){ var sa=$('studioAudio'); if(!sa)return; podPause(); studioMode=true;
-  $('studiobtn').textContent='🎙'; $('studiobtn').title='Back to read-aloud voices';
-  if(!sa.dataset.bound){sa.dataset.bound='1'; sa.addEventListener('timeupdate',studioTimeUpdate);
-    sa.addEventListener('ended',function(){$('podplay').textContent='▶';$('eq').classList.remove('on');}); }
-  sa.playbackRate=Math.min(2,pRate); try{sa.play();}catch(e){} $('podplay').textContent='⏸'; $('eq').classList.add('on'); }
-function exitStudio(){ var sa=$('studioAudio'); if(sa)sa.pause(); studioMode=false;
-  $('studiobtn').textContent='🎧'; $('studiobtn').title='Play the studio recording';
-  $('podplay').textContent='▶'; $('eq').classList.remove('on'); renderPod(); }
-function toggleStudio(){ studioMode?exitStudio():enterStudio(); }
-function renderPod(){ if(podQuizActive){var _pq=$('podquiz');if(_pq)_pq.style.display='none';podQuizActive=false;}
-  const l=POD[pIdx], ci=l.ci, ch=EPISODE.chapters[ci];
-  $('podep').textContent='Ch '+(ci+1)+'/'+EPISODE.chapters.length+' · '+ch.title;
+const PODQUIZ=[
+ {q:"Before you can even apply for a priority service, you must first…",o:["Submit the 8 documents","Finish the 16 modules and pass the exam at 85%","Get a business license","Hire your staff"],a:1,e:"Training comes before paperwork — it's the gate. Amara hits the classroom before the application."},
+ {q:"The Office of Licensing does all of these EXCEPT…",o:["Issue licenses","Monitor & investigate","Deliver the care itself","Enforce action"],a:2,e:"They're the referee, not a player — they regulate care, they don't provide it."},
+ {q:"An adult group home provides…",o:["24-hour supervision for 8 or fewer people","Care for up to 30","Daytime services only","Hospital care"],a:0,e:"Small and round-the-clock — a real home, not an institution. That's the whole idea."},
+ {q:"Why does Theo say to join the email list?",o:["It's legally required","So a missed rule change can't get you rejected","To get the exam early","To skip a module"],a:1,e:"If a rule changes and you didn't hear, you can be rejected for it. It's free insurance."},
+ {q:"Your 'evidence of financial resources' must cover…",o:["30 days","One week","90 days of operating expenses","Five years"],a:2,e:"90 days of expenses — so you won't fold in month two and leave people stranded. The money rule is a safety rule."},
+ {q:"Once you submit in CONNECT, your service choice is…",o:["Editable anytime","Locked","Sent to a committee","Auto-approved"],a:1,e:"Locked the second you submit — that's why Theo says measure twice, submit once."},
+ {q:"You may not serve anyone until…",o:["The license is framed","Background & registry checks are requested for staff + supervisors","You hire a nurse","The website launches"],a:1,e:"No checks requested = no one served. That's why the welcome letter says start them now."},
+ {q:"The eligibility letter disappears from the system after…",o:["30 days","6 months","2 years","Never"],a:1,e:"6 months, then it's gone — so you print it the moment it lands, or redo the whole check."},
+ {q:"For a priority application, you must fix a deficiency within…",o:["10 days","30 calendar days","90 calendar days","A year"],a:1,e:"Priority = 30 days (non-priority gets 90). Miss the clock and the application closes."},
+ {q:"Hot water for individuals is kept between…",o:["50–70°F","100–120°F","130–150°F","There's no rule"],a:1,e:"100–120°F so no one gets scalded (air stays 65–80°F). Small numbers, big safety."},
+ {q:"Your first — conditional — license lasts…",o:["6 months (12 max)","3 years","1 month","Forever"],a:0,e:"It's a learner's permit: 6 months each, 12 max, and you must actually serve people to prove you can."},
+ {q:"When your plan's status flips to 'Returned,' it means…",o:["It came back to you to redo","It's now WITH the Office of Licensing","It was denied","It was deleted"],a:1,e:"The trap! 'Returned' = you returned it to them — it's in their court now, not yours."},
+ {q:"A serious incident must be reported within…",o:["1 hour","24 hours of discovery","72 hours","A week"],a:1,e:"24 hours from when you discover it — and abuse or neglect is also 24 hours, to the Office of Human Rights."},
+ {q:"After the conditional license, the next step up is…",o:["A permanent license right away","An annual (1 year), then a triennial (3 years)","A 10-year license","No further license"],a:1,e:"Prove it over time: annual first, then triennial. From 'I have an idea' to trusted provider."},
+];
+const EPISODES=[
+ { title:"The Full Journey", audio:"podcast", chapters: EPISODE.chapters.map(function(c,i){return {title:c.title,fact:c.fact,lines:c.lines,quiz:PODQUIZ[i]};}) },
+{ title:"Corrective Action Plans", audio:"podcast-caps", chapters:[
+ {title:"You Got Cited — Now What", fact:"A citation isn't a failure — it triggers a CAP: your written fix.", lines:[
+  {w:"M",t:"Worst case. An inspector finds a problem. Is that the end of the road?"},
+  {w:"T",t:"Not at all. It just means you owe a Corrective Action Plan. People call it a cap. It's your written promise to fix it."},
+  {w:"M",t:"So getting cited is... normal?"},
+  {w:"T",t:"Honestly, it's expected. What matters is how you respond. A good cap turns a bad day into a non-issue."}],
+  quiz:{q:"A CAP is…",o:["A fine you pay","Your written plan to fix a cited problem","A type of license","An inspection"],a:1,e:"It's your promise to fix — not a punishment. How you respond is the whole game."}},
+ {title:"The Fifteen-Day Clock", fact:"CAP due in 15 business days. One extension up to 10 more, requested before the due date. No extension for health & safety.", lines:[
+  {w:"M",t:"How long do I have to write this thing?"},
+  {w:"T",t:"Fifteen business days from the licensing report. That's the clock."},
+  {w:"M",t:"And if I need more time?"},
+  {w:"T",t:"You can ask for one extension, up to ten more business days, but you have to ask before it's due. And there's no extension for health-and-safety problems."}],
+  quiz:{q:"A CAP is due within…",o:["24 hours","15 business days","30 days","90 days"],a:1,e:"15 business days — with one 10-day extension only if you ask before it's due."}},
+ {title:"What Makes a Plan Work", fact:"An acceptable CAP names the correction, a completion date, and a responsible person.", lines:[
+  {w:"M",t:"What does a good cap actually look like?"},
+  {w:"T",t:"Three ingredients. What you'll fix, by when, and who's responsible. Miss any one and it comes right back."},
+  {w:"M",t:"So vague promises don't fly."},
+  {w:"T",t:"Right. We'll do better is not a plan. The nurse re-trains staff by March first, and the manager audits monthly — that's a plan."}],
+  quiz:{q:"Which is NOT required in a CAP?",o:["What you'll fix","A completion date","Who's responsible","The inspector's name"],a:3,e:"Fix it, by when, by whom. And individual names never go in — that's a privacy rule."}},
+ {title:"The Returned Trap", fact:"'Returned' = it's WITH the Office of Licensing. Save is not Submit — only 'Submit CAP' counts.", lines:[
+  {w:"M",t:"I submit it in the portal, and the status says Returned. Did they reject me?"},
+  {w:"T",t:"That's the trap everyone falls for. Returned means you returned it to them. It's with the Office of Licensing now, under review."},
+  {w:"M",t:"So Returned is actually... good?"},
+  {w:"T",t:"It means it's in their court. And remember, saving is not submitting. If you only save, it never goes anywhere, and you can rack up more citations."}],
+  quiz:{q:"'Returned' status means…",o:["They rejected it","It's with the Office of Licensing for review","You must redo it","It was deleted"],a:1,e:"You returned it to them — it's under review. Never confuse Save with Submit."}},
+ {title:"Health, Safety & Disputes", fact:"Health & safety CAPs: no extension + a follow-up within 30 business days. Disputes go specialist, then supervisor, then Director (final).", lines:[
+  {w:"M",t:"What if it's something serious — a safety issue?"},
+  {w:"T",t:"Then it's faster, no extension, and they always come back to check you actually did it. A follow-up inspection within thirty business days of accepting your plan."},
+  {w:"M",t:"And if I flat-out disagree with the citation?"},
+  {w:"T",t:"You can dispute it. Talk to your specialist first, then their supervisor, and the Director makes the final call. But the clock keeps ticking, so don't sit on it."}],
+  quiz:{q:"After a health & safety CAP is accepted, the Office of Licensing…",o:["Closes the case","Does a follow-up inspection within 30 business days","Issues a new license","Waits a year"],a:1,e:"Health and safety always gets a follow-up — they verify you really fixed it."}}
+]},
+{ title:"Crisis Services", audio:"podcast-crisis", chapters:[
+ {title:"Three Doors", fact:"Crisis Now = someone to call (call centers), someone to respond (mobile crisis), somewhere to go (23-hour center / stabilization unit).", lines:[
+  {w:"M",t:"Virginia rebuilt its whole crisis system. What's the big idea?"},
+  {w:"T",t:"Three doors. Someone to call, someone to respond, somewhere to go. A call center, a mobile team, and a place that takes you in."},
+  {w:"M",t:"No wrong door."},
+  {w:"T",t:"Exactly. However you enter, you get help."}],
+  quiz:{q:"The three Crisis Now access points are…",o:["Call, respond, somewhere to go","Screen, admit, bill","Assess, refer, close","Prevent, treat, discharge"],a:0,e:"Call, respond, somewhere to go — a true no-wrong-door system."}},
+ {title:"The Two That Aren't Licensed", fact:"Two crisis services are NOT DBHDS-licensed: the Regional Crisis Call Centers and the CITACs.", lines:[
+  {w:"M",t:"Does the Office of Licensing license all of these?"},
+  {w:"T",t:"Most of them — but two it does not. The regional crisis call centers, and the crisis intervention team assessment centers."},
+  {w:"M",t:"Why not those two?"},
+  {w:"T",t:"They connect people to licensed services, but they're overseen differently. It's a classic trick question, so lock in the two."}],
+  quiz:{q:"Which is NOT licensed by DBHDS?",o:["Mobile crisis","A crisis call center","A crisis stabilization unit","A crisis receiving center"],a:1,e:"Call centers and CITACs aren't licensed — they route people to services that are."}},
+ {title:"Twenty-Three Hours", fact:"A Crisis Receiving Center (CRC): up to 23 hours 59 minutes, center-based, recliners not beds.", lines:[
+  {w:"M",t:"What exactly is a crisis receiving center?"},
+  {w:"T",t:"A place you can walk into, get assessed and stabilized, for up to twenty-three hours and fifty-nine minutes. Center-based, with recliners instead of beds."},
+  {w:"M",t:"Under a day, by design."},
+  {w:"T",t:"Right. Short observation to head off an unnecessary hospitalization."}],
+  quiz:{q:"A crisis receiving center provides care for up to…",o:["8 hours","23 hours 59 minutes","72 hours","A week"],a:1,e:"Just under a day — recliners, not beds — to prevent an unnecessary hospital stay."}},
+ {title:"Sixteen Beds Is the Line", fact:"A Crisis Stabilization Unit (CSU): residential, short-term, 16 beds max — over 16 becomes a federal IMD (no Medicaid, ages 21–64).", lines:[
+  {w:"M",t:"And if someone needs to stay longer than a day?"},
+  {w:"T",t:"That's a residential crisis stabilization unit. Short-term, a few days. But here's the number that matters. No more than sixteen beds."},
+  {w:"M",t:"What happens at seventeen?"},
+  {w:"T",t:"It crosses a federal line. It becomes what's called an institution for mental diseases, and Medicaid won't pay for adults twenty-one to sixty-four. So sixteen is the ceiling."}],
+  quiz:{q:"A crisis stabilization unit can have at most…",o:["8 beds","16 beds","23 beds","No limit"],a:1,e:"16 is the cap — cross it and you lose Medicaid for adults 21 to 64."}},
+ {title:"REACH & the Bigger Picture", fact:"REACH is Virginia's developmental-disability crisis system (since 2012). Licensed crisis programs still report serious incidents within 24 hours.", lines:[
+  {w:"M",t:"Anything special for people with developmental disabilities?"},
+  {w:"T",t:"Yes — the REACH program. A statewide crisis system just for them, running since two thousand twelve. Mobile teams, community stabilization, and short crisis-home stays."},
+  {w:"M",t:"So crisis care isn't one-size-fits-all."},
+  {w:"T",t:"Never. And remember, even a licensed crisis unit still reports serious incidents within twenty-four hours, just like everyone else."}],
+  quiz:{q:"REACH serves…",o:["Everyone in crisis","People with developmental disabilities in crisis","Only children","Only substance use"],a:1,e:"REACH is the developmental-disability crisis system — and it still follows the 24-hour rule."}}
+]},
+{ title:"Death & Serious Incident Reporting", audio:"podcast-incidents", chapters:[
+ {title:"When Something Happens", fact:"Level II & III serious incidents → report within 24 hours of discovery.", lines:[
+  {w:"M",t:"Something goes wrong on a shift. What's the very first duty?"},
+  {w:"T",t:"Report it. Fast. Serious incidents go into the reporting system within twenty-four hours."},
+  {w:"M",t:"Twenty-four hours from when it happened?"},
+  {w:"T",t:"From when you discover it. The clock starts at discovery, not at the event."}],
+  quiz:{q:"The 24-hour reporting clock starts…",o:["When the incident happens","When you discover it","When a manager arrives","At end of shift"],a:1,e:"From discovery — that's the trigger, not the event itself."}},
+ {title:"Level One, Two, Three", fact:"Level I: not reported to CHRIS, but reviewed at least quarterly. Level II & III: reported within 24 hours.", lines:[
+  {w:"M",t:"Are all incidents treated the same?"},
+  {w:"T",t:"No — there are three levels. Level one is minor. It's not reported to the system, but you review those quarterly. Levels two and three are the ones you report within twenty-four hours."},
+  {w:"M",t:"So level one you track, two and three you report."},
+  {w:"T",t:"Exactly. Knowing which level something is — that's the whole skill."}],
+  quiz:{q:"Level I incidents are…",o:["Reported in 24 hours","Not reported, but reviewed quarterly","Never documented","Reported to police"],a:1,e:"Level I stays in-house for quarterly review; only II and III get reported."}},
+ {title:"The Worst Three", fact:"Level III = death, sexual assault, or a suicide attempt with hospital admission — and it counts even off-premises.", lines:[
+  {w:"M",t:"What makes something a level three — the top level?"},
+  {w:"T",t:"Three things. A death, a sexual assault, or a suicide attempt that leads to a hospital admission."},
+  {w:"M",t:"Those are the heaviest."},
+  {w:"T",t:"And level three counts even if it happened off your premises. That's what sets it apart."}],
+  quiz:{q:"Which is a Level III incident?",o:["An emergency-room visit","Any death of an individual","A missing person","A choking with intervention"],a:1,e:"Death, sexual assault, suicide-attempt-with-admission. The others are Level II."}},
+ {title:"Two Systems, One Login", fact:"CHRIS (reached through the DELTA login) reports to two offices: Licensing (incidents) and Human Rights (abuse/neglect). One doesn't cover the other.", lines:[
+  {w:"M",t:"Where does the report actually go?"},
+  {w:"T",t:"A system called CHRIS. But to get in, you pass through a secure login portal called DELTA."},
+  {w:"M",t:"And I heard CHRIS feeds two different offices?"},
+  {w:"T",t:"It does. Deaths and serious incidents go to the Office of Licensing. Abuse and neglect go to the Office of Human Rights. Reporting to one does not cover the other."}],
+  quiz:{q:"Reporting abuse to the Office of Human Rights means…",o:["You've also covered the serious-incident report","You still owe the Licensing report separately","No other report is needed","The case is closed"],a:1,e:"Two separate duties — same system, different offices. Do both."}},
+ {title:"After the Report", fact:"Report in 24 hours, then a root cause analysis within 30 days. The Incident Management Unit reviews every report.", lines:[
+  {w:"M",t:"Once I've reported, am I done?"},
+  {w:"T",t:"Not quite. For serious ones, you do a root cause analysis. You figure out why it happened, within thirty days."},
+  {w:"M",t:"So report fast, then dig deep."},
+  {w:"T",t:"Exactly. Report in twenty-four hours, understand it within thirty days. And a team called the Incident Management Unit reviews every single one, and can follow up."}],
+  quiz:{q:"A root cause analysis for a serious incident is due within…",o:["24 hours","30 days","90 days","A year"],a:1,e:"Report in 24 hours, then dig into the why within 30 days."}}
+]},
+{ title:"Human Rights & Home-Based Services", audio:"podcast-rights", chapters:[
+ {title:"The Office That Guards Rights", fact:"The Office of Human Rights oversees and enforces rights — it does NOT run a 24/7 hotline, provide emergency care, or remove anyone.", lines:[
+  {w:"M",t:"There's a whole office just for human rights?"},
+  {w:"T",t:"There is. It protects the rights of people receiving services. Freedom from abuse, dignity, choice."},
+  {w:"M",t:"So they swoop in and rescue people?"},
+  {w:"T",t:"Common misconception. They oversee and enforce. They don't provide emergency care, they don't run a hotline, and they can't remove someone from a setting."}],
+  quiz:{q:"The Office of Human Rights…",o:["Runs a 24/7 crisis hotline","Oversees and enforces rights, but doesn't rescue","Provides direct care","Removes people from settings"],a:1,e:"They're the referee for rights — oversight and enforcement, not rescue."}},
+ {title:"Who Investigates?", fact:"Providers investigate their own; the Office of Human Rights oversees. Abuse/neglect reported in 24 hours; report & decision within 10 working days.", lines:[
+  {w:"M",t:"If there's an abuse allegation, does that office investigate it?"},
+  {w:"T",t:"Usually the provider investigates its own, with a trained investigator. The office reviews it and can step in."},
+  {w:"M",t:"And the clock?"},
+  {w:"T",t:"Abuse, neglect, or exploitation gets reported within twenty-four hours. The written investigation and the director's decision come within ten working days."}],
+  quiz:{q:"Abuse or neglect must be reported within…",o:["1 hour","24 hours","10 working days","A month"],a:1,e:"24 hours to report; the investigation and decision follow within 10 working days."}},
+ {title:"One Policy Comes First", fact:"Only the complaint resolution policy must be approved before licensure; the rest are reviewed after the welcome letter.", lines:[
+  {w:"M",t:"New providers have a whole stack of human-rights policies. Are they all due at once?"},
+  {w:"T",t:"Just one has to be approved before you're licensed. Your complaint resolution policy. The rest, your advocate reviews after your welcome letter."},
+  {w:"M",t:"So don't panic about all of them up front."},
+  {w:"T",t:"Right. Complaint resolution first. Everything else follows."}],
+  quiz:{q:"Which policy must be approved BEFORE licensure?",o:["Seclusion policy","The complaint resolution policy","Visitation policy","Behavior policy"],a:1,e:"Just the complaint resolution policy up front — the rest come later."}},
+ {title:"An Ordinary Life", fact:"The HCBS Settings Rule promises people the same rights, freedoms, and community life as anyone not receiving services.", lines:[
+  {w:"M",t:"Let's switch to the home side — the settings rule. What's it really about?"},
+  {w:"T",t:"One sentence. A person on Medicaid home-and-community services gets to live a life like anyone else's. Same rights, same freedoms."},
+  {w:"M",t:"Not an institution — again."},
+  {w:"T",t:"Always. That thread runs through everything."}],
+  quiz:{q:"The core promise of the HCBS Settings Rule is…",o:["Cheaper care","The same rights and freedoms as anyone else","Faster admissions","More paperwork"],a:1,e:"An ordinary life — same rights, freedoms, and community as everyone else."}},
+ {title:"The Home Conditions", fact:"Provider homes: lease, lockable bedroom, roommate choice, food & visitors anytime. Physical accessibility can NEVER be modified.", lines:[
+  {w:"M",t:"What does that look like in a provider-run home?"},
+  {w:"T",t:"A lease with real eviction protections. A bedroom you can lock. A say in your roommate. Food you can get any time. Visitors whenever you want."},
+  {w:"M",t:"That's just... a normal home."},
+  {w:"T",t:"That's the entire point. And one thing can never be taken away. Physical accessibility."}],
+  quiz:{q:"Which home condition can NEVER be modified?",o:["Roommate choice","A lockable bedroom","Physical accessibility","Visitor hours"],a:2,e:"Everything else can be modified for a documented safety need — but never the ramp."}},
+ {title:"Three Agencies, One Goal", fact:"CMS funds (federal), DMAS is the state Medicaid agency (the money), DBHDS runs day-to-day + licensing. HCBS compliance gates payment.", lines:[
+  {w:"M",t:"Who's behind all this — who actually pays?"},
+  {w:"T",t:"Three agencies. The federal one, C M S, funds it. The state Medicaid agency, D MAS, holds the money and the agreements. And DBHDS runs the day-to-day and licenses providers."},
+  {w:"M",t:"Federal money, state agency, local operations."},
+  {w:"T",t:"And you can't bill until you're compliant with the settings rule and enrolled. Compliance isn't paperwork. It's the door to getting paid."}],
+  quiz:{q:"Which agency is 'the money' — the state Medicaid agency?",o:["CMS","DMAS","DBHDS","The General Assembly"],a:1,e:"DMAS holds the dollars and the participation agreement; CMS is federal; DBHDS runs operations."}}
+]}
+
+];
+EPISODES.forEach(function(ep){ep.chapters.forEach(function(c){ c.fact=expandAcr(c.fact);
+  if(c.quiz){var qz=c.quiz; qz.q=expandAcr(qz.q); qz.o=qz.o.map(expandAcr); qz.e=expandAcr(qz.e);} });});
+let curEp=0; function EP(){return EPISODES[curEp];}
+
+let POD=[], chapterStart=[], cumFrac=[0], podRenderedCi=-1, pIdx=0, pPlaying=false, pRate=1, podGen=0, podTimer=null, studioLine=-1;
+function buildPod(){ POD=[];chapterStart=[]; EP().chapters.forEach(function(c,ci){chapterStart[ci]=POD.length;c.lines.forEach(function(l,li){POD.push({w:l.w,t:l.t,ci,li});});});
+  var w=POD.map(function(p){return Math.max(8,p.t.length);}); var tot=w.reduce(function(a,b){return a+b;},0)||1;
+  cumFrac=[0]; var run=0; for(var i=0;i<w.length;i++){run+=w[i]; cumFrac.push(run/tot);} }
+function paintTranscript(gi){ var l=POD[gi], ci=l.ci, ch=EP().chapters[ci];
+  $('podep').textContent='Ch '+(ci+1)+'/'+EP().chapters.length+' · '+ch.title;
   var chips=$('podchips').children; for(var i=0;i<chips.length;i++)chips[i].classList.toggle('on',i===ci);
-  const tr=$('transcript');
-  if(podRenderedCi!==ci){ podRenderedCi=ci;
-    tr.innerHTML=ch.lines.map((ln,j)=>{const gi=chapterStart[ci]+j;return '<div class="bub '+ln.w+'" data-gi="'+gi+'" onclick="jumpLine('+gi+')"><span class="who">'+EPISODE.hosts[ln.w]+'</span>'+ln.t+'</div>';}).join('');}
-  var bubs=tr.children; for(var k=0;k<bubs.length;k++)bubs[k].classList.toggle('active',+bubs[k].dataset.gi===pIdx);
+  var tr=$('transcript');
+  if(podRenderedCi!==ci){ podRenderedCi=ci; tr.innerHTML=ch.lines.map(function(ln,j){var g=chapterStart[ci]+j;return '<div class="bub '+ln.w+'" data-gi="'+g+'" onclick="jumpLine('+g+')"><span class="who">'+HOSTS[ln.w]+'</span>'+ln.t+'</div>';}).join(''); }
+  var bubs=tr.children; for(var k=0;k<bubs.length;k++)bubs[k].classList.toggle('active',+bubs[k].dataset.gi===gi);
   var act=tr.querySelector('.bub.active'); if(act)act.scrollIntoView({block:'nearest',behavior:'smooth'});
-  $('storylock').innerHTML='<b>🔑 Key takeaway:</b> '+ch.fact;
-  $('scrubfill').style.width=Math.round((pIdx+1)/POD.length*100)+'%';
-  $('podline').textContent=(pIdx+1)+' / '+POD.length; }
+  $('storylock').innerHTML='<b>🔑 Key takeaway:</b> '+ch.fact; }
+function renderPod(){ if(podQuizActive){var _pq=$('podquiz');if(_pq)_pq.style.display='none';podQuizActive=false;}
+  paintTranscript(pIdx); $('scrubfill').style.width=Math.round((pIdx+1)/POD.length*100)+'%'; $('podline').textContent=(pIdx+1)+' / '+POD.length; }
+
+/* ---- transport (drives read-aloud OR the studio recording) ---- */
 function togglePod(){ if(studioMode){ var sa=$('studioAudio'); if(!sa)return;
     if(sa.paused){try{sa.play();}catch(e){}$('podplay').textContent='⏸';$('eq').classList.add('on');}
     else {sa.pause();$('podplay').textContent='▶';$('eq').classList.remove('on');} return; }
@@ -1141,8 +1280,8 @@ function advancePod(){ if(!pPlaying)return;
   pIdx++; speakPod(); }
 function nextPodBtn(){ if(studioMode){var sa=$('studioAudio'); if(sa)sa.currentTime=Math.min(sa.duration||0,sa.currentTime+15); return;} if(pIdx<POD.length-1)pIdx++; if(pPlaying)speakPod(); else renderPod(); }
 function prevPod(){ if(studioMode){var sa=$('studioAudio'); if(sa)sa.currentTime=Math.max(0,sa.currentTime-15); return;} if(pIdx>0)pIdx--; if(pPlaying)speakPod(); else renderPod(); }
-function jumpChapter(ci){ if(studioMode){var sa=$('studioAudio'); if(sa&&sa.duration)sa.currentTime=(chapterStart[ci]/POD.length)*sa.duration; return;} pIdx=chapterStart[ci]; if(pPlaying)speakPod(); else renderPod(); }
-function jumpLine(gi){ if(studioMode){var sa=$('studioAudio'); if(sa&&sa.duration)sa.currentTime=(gi/POD.length)*sa.duration; return;} pIdx=gi; if(pPlaying)speakPod(); else renderPod(); }
+function jumpChapter(ci){ if(studioMode){var sa=$('studioAudio'); if(sa&&sa.duration)sa.currentTime=cumFrac[chapterStart[ci]]*sa.duration; return;} pIdx=chapterStart[ci]; if(pPlaying)speakPod(); else renderPod(); }
+function jumpLine(gi){ if(studioMode){var sa=$('studioAudio'); if(sa&&sa.duration)sa.currentTime=cumFrac[gi]*sa.duration; return;} pIdx=gi; if(pPlaying)speakPod(); else renderPod(); }
 function scrubClick(e){ const r=e.currentTarget.getBoundingClientRect(); const pct=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width));
   if(studioMode){var sa=$('studioAudio'); if(sa&&sa.duration)sa.currentTime=pct*sa.duration; return;}
   pIdx=Math.min(POD.length-1,Math.max(0,Math.round(pct*POD.length))); if(pPlaying)speakPod(); else renderPod(); }
@@ -1151,35 +1290,42 @@ function cycleSpeed(){ const r=[1,1.25,1.5,1.75,2,0.85]; var i=r.indexOf(pRate);
   if(pPlaying)speakPod(); }
 function podFinish(){ pPlaying=false;$('podplay').textContent='▶';$('eq').classList.remove('on'); try{bigConfetti();}catch(e){} }
 
-/* one quick check per chapter — explanations are short and connect back to the story */
+/* ---- studio recording (real MP3) mode ---- */
+let studioMode=false;
+function fmtT(s){s=Math.max(0,s|0);var m=(s/60)|0,r=s%60;return m+':'+(r<10?'0':'')+r;}
+function studioTimeUpdate(){ var sa=$('studioAudio'); if(!sa||!sa.duration)return;
+  var frac=sa.currentTime/sa.duration;
+  $('scrubfill').style.width=Math.round(frac*100)+'%'; $('podline').textContent=fmtT(sa.currentTime)+' / '+fmtT(sa.duration);
+  var gi=0; while(gi<POD.length-1 && cumFrac[gi+1]<=frac) gi++;
+  if(gi!==studioLine){ studioLine=gi; paintTranscript(gi); } }
+function probeStudio(base){ var sa=$('studioAudio'); if(!sa)return; studioMode=false; studioLine=-1;
+  $('studiobtn').style.display='none'; $('studiobtn').textContent='🎧'; $('studiobtn').title='Play the studio recording';
+  var cands=[base+'.mp3',base+'.m4a',base+'.wav',base+'.ogg'], ci=0;
+  sa.onloadedmetadata=function(){$('studiobtn').style.display='inline-flex';};
+  sa.onerror=function(){ ci++; if(ci<cands.length){sa.src=cands[ci];} else {$('studiobtn').style.display='none';} };
+  if(!sa.dataset.bound){sa.dataset.bound='1'; sa.addEventListener('timeupdate',studioTimeUpdate); sa.addEventListener('ended',function(){$('podplay').textContent='▶';$('eq').classList.remove('on');}); }
+  try{sa.src=cands[0];}catch(e){} }
+function enterStudio(){ var sa=$('studioAudio'); if(!sa)return; podPause(); studioMode=true; studioLine=-1;
+  $('studiobtn').textContent='🎙'; $('studiobtn').title='Back to read-aloud voices';
+  sa.playbackRate=Math.min(2,pRate); try{sa.play();}catch(e){} $('podplay').textContent='⏸'; $('eq').classList.add('on'); }
+function exitStudio(){ var sa=$('studioAudio'); if(sa)sa.pause(); studioMode=false;
+  $('studiobtn').textContent='🎧'; $('studiobtn').title='Play the studio recording';
+  $('podplay').textContent='▶'; $('eq').classList.remove('on'); renderPod(); }
+function toggleStudio(){ studioMode?exitStudio():enterStudio(); }
+
+/* ---- chapter quiz ---- */
 let podQuizActive=false; const podQuizShown=new Set();
-const PODQUIZ=[
- {q:"Before you can even apply for a priority service, you must first…",o:["Submit the 8 documents","Finish the 16 modules and pass the exam at 85%","Get a business license","Hire your staff"],a:1,e:"Training comes before paperwork — it's the gate. Amara hits the classroom before the application."},
- {q:"The Office of Licensing does all of these EXCEPT…",o:["Issue licenses","Monitor & investigate","Deliver the care itself","Enforce action"],a:2,e:"They're the referee, not a player — they regulate care, they don't provide it."},
- {q:"An adult group home provides…",o:["24-hour supervision for 8 or fewer people","Care for up to 30","Daytime services only","Hospital care"],a:0,e:"Small and round-the-clock — a real home, not an institution. That's the whole idea."},
- {q:"Why does Theo say to join the email list?",o:["It's legally required","So a missed rule change can't get you rejected","To get the exam early","To skip a module"],a:1,e:"If a rule changes and you didn't hear, you can be rejected for it. It's free insurance."},
- {q:"Your 'evidence of financial resources' must cover…",o:["30 days","One week","90 days of operating expenses","Five years"],a:2,e:"90 days of expenses — so you won't fold in month two and leave people stranded. The money rule is a safety rule."},
- {q:"Once you submit in CONNECT, your service choice is…",o:["Editable anytime","Locked","Sent to a committee","Auto-approved"],a:1,e:"Locked the second you submit — that's why Theo says measure twice, submit once."},
- {q:"You may not serve anyone until…",o:["The license is framed","Background & registry checks are requested for staff + supervisors","You hire a nurse","The website launches"],a:1,e:"No checks requested = no one served. That's why the welcome letter says start them now."},
- {q:"The eligibility letter disappears from the system after…",o:["30 days","6 months","2 years","Never"],a:1,e:"6 months, then it's gone — so you print it the moment it lands, or redo the whole check."},
- {q:"For a priority application, you must fix a deficiency within…",o:["10 days","30 calendar days","90 calendar days","A year"],a:1,e:"Priority = 30 days (non-priority gets 90). Miss the clock and the application closes."},
- {q:"Hot water for individuals is kept between…",o:["50–70°F","100–120°F","130–150°F","There's no rule"],a:1,e:"100–120°F so no one gets scalded (air stays 65–80°F). Small numbers, big safety."},
- {q:"Your first — conditional — license lasts…",o:["6 months (12 max)","3 years","1 month","Forever"],a:0,e:"It's a learner's permit: 6 months each, 12 max, and you must actually serve people to prove you can."},
- {q:"When your plan's status flips to 'Returned,' it means…",o:["It came back to you to redo","It's now WITH the Office of Licensing","It was denied","It was deleted"],a:1,e:"The trap! 'Returned' = you returned it to them — it's in their court now, not yours."},
- {q:"A serious incident must be reported within…",o:["1 hour","24 hours of discovery","72 hours","A week"],a:1,e:"24 hours from when you discover it — and abuse or neglect is also 24 hours, to the Office of Human Rights."},
- {q:"After the conditional license, the next step up is…",o:["A permanent license right away","An annual (1 year), then a triennial (3 years)","A 10-year license","No further license"],a:1,e:"Prove it over time: annual first, then triennial. From 'I have an idea' to trusted provider."},
-];
-function showChapterQuiz(ci){ if(ci>=PODQUIZ.length||podQuizShown.has(ci))return false;
-  const q=PODQUIZ[ci]; podQuizShown.add(ci); podQuizActive=true;
+function showChapterQuiz(ci){ var q=EP().chapters[ci].quiz; if(!q||podQuizShown.has(curEp+'-'+ci))return false;
+  podQuizShown.add(curEp+'-'+ci); podQuizActive=true;
   clearTimeout(podTimer); try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){} $('eq').classList.remove('on');
-  $('pqq').textContent=q.q; const fb=$('pqfb'); fb.style.display='none'; fb.innerHTML='';
+  $('pqq').textContent=q.q; var fb=$('pqfb'); fb.style.display='none'; fb.innerHTML='';
   $('pqcont').style.display='none'; $('pqskip').style.display='inline-block';
-  const wrap=$('pqopts'); wrap.innerHTML='';
-  q.o.forEach((opt,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="key">'+(i+1)+'</span><span>'+opt+'</span>';b.onclick=()=>podQuizAnswer(i,ci);wrap.appendChild(b);});
-  const panel=$('podquiz'); panel.style.display='block'; panel.scrollIntoView({behavior:'smooth',block:'center'}); return true; }
-function podQuizAnswer(i,ci){ const q=PODQUIZ[ci]; const els=$('pqopts').children;
-  for(let j=0;j<els.length;j++){els[j].disabled=true; if(j===q.a)els[j].classList.add('correct'); else if(j===i)els[j].classList.add('wrong'); else els[j].classList.add('dim');}
-  const ok=i===q.a; const fb=$('pqfb'); fb.style.display='block'; fb.className='pqfb '+(ok?'ok':'no');
+  var wrap=$('pqopts'); wrap.innerHTML='';
+  q.o.forEach(function(opt,i){var b=document.createElement('button');b.className='opt';b.innerHTML='<span class="key">'+(i+1)+'</span><span>'+opt+'</span>';b.onclick=function(){podQuizAnswer(i,ci);};wrap.appendChild(b);});
+  var panel=$('podquiz'); panel.style.display='block'; panel.scrollIntoView({behavior:'smooth',block:'center'}); return true; }
+function podQuizAnswer(i,ci){ var q=EP().chapters[ci].quiz; var els=$('pqopts').children;
+  for(var j=0;j<els.length;j++){els[j].disabled=true; if(j===q.a)els[j].classList.add('correct'); else if(j===i)els[j].classList.add('wrong'); else els[j].classList.add('dim');}
+  var ok=i===q.a; var fb=$('pqfb'); fb.style.display='block'; fb.className='pqfb '+(ok?'ok':'no');
   fb.innerHTML=(ok?'<b>✅ Nailed it.</b> ':'<b>❌ Not quite — the answer is "'+q.o[q.a]+'."</b> ')+q.e;
   if(ok){S.xp+=10;save();setStats();confetti();}
   $('pqcont').style.display='inline-block'; $('pqskip').style.display='none'; }
@@ -1188,6 +1334,17 @@ function podQuizContinue(){ podQuizFinishPanel(); }
 function podQuizFinishPanel(){ $('podquiz').style.display='none'; podQuizActive=false;
   if(pIdx>=POD.length-1){podFinish();return;}
   pIdx++; if(pPlaying){$('eq').classList.add('on');speakPod();} else renderPod(); }
+
+/* ---- entry + episode switching ---- */
+function startStory(){ pPlaying=false;pRate=1;$('podspeed').textContent='1×';$('podplay').textContent='▶';$('eq').classList.remove('on');
+  var ep=$('epPick'); if(ep&&!ep.dataset.filled){ep.dataset.filled='1'; ep.innerHTML=EPISODES.map(function(e,i){return '<option value="'+i+'">'+(i+1)+'. '+e.title+'</option>';}).join('');}
+  loadVoices(); show('story'); loadEpisode(curEp); }
+function loadEpisode(i){ curEp=i; var ep=$('epPick'); if(ep)ep.value=i; var ps=$('podshow'); if(ps)ps.textContent='🎙️ '+EP().title;
+  buildPod(); pIdx=0;pPlaying=false;podRenderedCi=-1;studioLine=-1;
+  try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){} clearTimeout(podTimer);
+  $('podplay').textContent='▶';$('eq').classList.remove('on');$('podspeed').textContent=pRate+'×';
+  $('podchips').innerHTML=EP().chapters.map(function(c,idx){return '<button class="chip" onclick="jumpChapter('+idx+')">'+(idx+1)+'</button>';}).join('');
+  probeStudio(EP().audio); renderPod(); }
 
 /* ---------- CONFETTI ---------- */
 const cv=$('fx'),ctx=cv.getContext('2d');let parts=[];
