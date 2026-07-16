@@ -60,6 +60,19 @@
   .coach .cgrp.jg{margin-top:4px;border-top:1px dashed #33407a;padding-top:8px}
   .coach .cgrp.jg b{color:var(--warn)}
   .coach .cgrp.jg li b{color:#ffe08a}
+  .sfxbtn{cursor:pointer;border:1px solid var(--ring);background:var(--card);color:var(--ink);font-size:15px;line-height:1}
+  .sfxbtn:active{transform:scale(.92)}
+  .screen-in{animation:screenIn .34s cubic-bezier(.2,.85,.25,1)}
+  @keyframes screenIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+  .opts .opt{animation:optIn .28s ease backwards}
+  .opts .opt:nth-child(1){animation-delay:.03s}.opts .opt:nth-child(2){animation-delay:.08s}.opts .opt:nth-child(3){animation-delay:.13s}.opts .opt:nth-child(4){animation-delay:.18s}.opts .opt:nth-child(5){animation-delay:.23s}
+  @keyframes optIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .xppop{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:70;pointer-events:none;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#0b1030;font-weight:900;font-size:15px;padding:8px 16px;border-radius:999px;box-shadow:0 10px 28px rgba(124,156,255,.5);animation:xppop 1s cubic-bezier(.2,.9,.2,1) forwards}
+  @keyframes xppop{0%{opacity:0;transform:translateX(-50%) translateY(8px) scale(.7)}18%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.12)}40%{transform:translateX(-50%) translateY(0) scale(1)}100%{opacity:0;transform:translateX(-50%) translateY(-30px) scale(1)}}
+  .mode{transition:border-color .15s,transform .1s,box-shadow .15s}
+  .mode:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.28)}
+  .btn.primary,.btn.good{transition:transform .08s,filter .15s,box-shadow .15s}
+  .btn.primary:hover,.btn.good:hover{filter:brightness(1.08)}
   .opt[disabled]{cursor:default}
   .feedback{margin-top:16px;border-radius:14px;padding:14px 16px;font-size:15px;display:none;animation:pop .25s ease}
   .feedback.show{display:block}
@@ -205,6 +218,7 @@
     <div class="stat">⭐ <span id="xp">0</span><small>XP</small></div>
     <div class="stat"><span class="flame">🔥</span><span id="streak">0</span><small>streak</small></div>
     <div class="stat">🏆 <span id="best">0</span><small>best</small></div>
+    <button class="stat sfxbtn" id="sfxbtn" onclick="toggleSfx()" title="Sound on/off">🔊</button>
   </div>
 
   <!-- HOME -->
@@ -372,6 +386,7 @@
     <div class="row">
       <button class="btn ghost" onclick="goHome()">← Home</button>
       <div class="spacer"></div>
+      <button class="btn ghost" id="lspeed" onclick="cycleClipSpeed()">1×</button>
       <button class="btn good" id="lplay" onclick="listenToggle()">▶ Play</button>
       <button class="btn primary" onclick="listenNext()">Next →</button>
     </div>
@@ -893,13 +908,13 @@ const REELS = [
 let S = load();
 function load(){try{return JSON.parse(localStorage.getItem('dbhds')||'{}')}catch(e){return {}}}
 function save(){try{localStorage.setItem('dbhds',JSON.stringify(S))}catch(e){}}
-S.xp=S.xp||0; S.best=S.best||0; S.missed=S.missed||[]; S.starred=S.starred||[];
+S.xp=S.xp||0; S.best=S.best||0; S.missed=S.missed||[]; S.starred=S.starred||[]; S.sfx=(S.sfx===undefined)?true:S.sfx; S.clipRate=S.clipRate||1;
 
 let queue=[], idx=0, streak=0, correctCount=0, mode='', curFlash=[], fIdx=0, answered=false, pendingModule='';
 let mockMode=false, mockAns=[], mockTimer=null, mockLeft=0;
 
 const $=id=>document.getElementById(id);
-function setStats(){$('xp').textContent=S.xp;$('best').textContent=S.best+'%';$('streak').textContent=streak;
+function setStats(){$('xp').textContent=S.xp;$('best').textContent=S.best+'%';$('streak').textContent=streak; var _sb=$('sfxbtn'); if(_sb)_sb.textContent=S.sfx?'🔊':'🔇';
   $('missedCount').textContent = S.missed.length? (S.missed.length+' to review'):'Nothing missed yet.';
   $('starCount').textContent = S.starred.length? (S.starred.length+' starred'):'Starred';}
 setStats();
@@ -907,7 +922,7 @@ setStats();
 (function(){const mods=[...new Set(BANK.map(x=>x.m))];const sel=$('modpick');
   mods.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o)});})();
 
-function show(id){stopAudio();['home','hooks','quiz','flashm','results','story','versus','map','listen','glossary'].forEach(x=>$(x).style.display='none');$(id).style.display='block';window.scrollTo(0,0)}
+function show(id){stopAudio();['home','hooks','quiz','flashm','results','story','versus','map','listen','glossary'].forEach(x=>$(x).style.display='none');var el=$(id);el.style.display='block';el.classList.remove('screen-in');void el.offsetWidth;el.classList.add('screen-in');window.scrollTo(0,0)}
 function goHome(){clearInterval(mockTimer);mockMode=false;var _st=$('star');if(_st)_st.style.display='';setStats();$('modpick').style.display='none';$('modpickLbl').style.display='none';show('home')}
 document.addEventListener('keydown',e=>{
   if($('reels').style.display==='block'){ if(e.key==='Escape')closeReels(); if(e.key===' '){e.preventDefault();reelToggle();} if(e.key==='ArrowRight')reelNext(); if(e.key==='ArrowLeft')reelPrev(); return; }
@@ -987,16 +1002,16 @@ function choose(i,btn){
     else b.classList.add('dim');});
   const fb=$('fb');
   if(right){
-    streak++;correctCount++;const gain=10+Math.min(streak,6)*2;S.xp+=gain;save();$('xp').textContent=S.xp;
+    streak++;correctCount++;const gain=10+Math.min(streak,6)*2;S.xp+=gain;save();$('xp').textContent=S.xp; sfx('correct'); xpPop(gain);
     fb.className='feedback ok show';
-    fb.innerHTML=`<div class="head">✅ Correct! +${gain} XP</div><div>${q.e}</div>${q.mn?`<div class="mnem">🧠 Memory tip: ${q.mn}</div>`:''}${srcHTML(q)}`;
+    fb.innerHTML=`<div class="head">✅ Correct! +${gain} XP</div><div>${q.e}</div>${q.mn?`<div class="mnem">🧠 Memory tip: ${q.mn}</div>`:''}${srcHTML(q)}${jargonFeedback(q.q+' '+q.e)}`;
     if(streak>=3){$('sbanner').textContent=`🔥 ${streak} in a row!`;confetti();}
     S.missed=S.missed.filter(x=>x!==idOf(q));save();
   }else{
-    streak=0;
+    streak=0; sfx('wrong');
     if(!S.missed.includes(idOf(q))){S.missed.push(idOf(q));save();}
     fb.className='feedback no show';
-    fb.innerHTML=`<div class="head">❌ Not quite — it's <u>${q.o[q.a]}</u></div><div>${q.e}</div>${q.mn?`<div class="mnem">🧠 Memory tip: ${q.mn}</div>`:''}${srcHTML(q)}`;
+    fb.innerHTML=`<div class="head">❌ Not quite — it's <u>${q.o[q.a]}</u></div><div>${q.e}</div>${q.mn?`<div class="mnem">🧠 Memory tip: ${q.mn}</div>`:''}${srcHTML(q)}${jargonFeedback(q.q+' '+q.e)}`;
   }
   $('next').style.display='inline-block';$('next').textContent = idx+1<queue.length?'Next →':'See results →';
 }
@@ -1017,7 +1032,7 @@ function renderMock(){ answered=false; const q=queue[idx];
   q.o.forEach(function(opt,i){ var b=document.createElement('button'); b.className='opt'+(mockAns[idx]===i?' sel':'');
     b.innerHTML='<span class="key">'+(i+1)+'</span><span>'+opt+'</span>'; b.onclick=function(){mockChoose(i);}; wrap.appendChild(b); });
   $('next').style.display='inline-block'; $('next').textContent=idx+1<queue.length?'Next →':'Submit exam →'; }
-function mockChoose(i){ mockAns[idx]=i; renderMock(); }
+function mockChoose(i){ mockAns[idx]=i; sfx('click'); renderMock(); }
 function finishMock(){ clearInterval(mockTimer); mockMode=false; var _st=$('star'); if(_st)_st.style.display='';
   var correct=0, missed=[];
   for(var k=0;k<queue.length;k++){ if(mockAns[k]===queue[k].a) correct++; else { missed.push({q:queue[k],your:mockAns[k]}); if(!S.missed.includes(idOf(queue[k])))S.missed.push(idOf(queue[k])); } }
@@ -1030,7 +1045,7 @@ function finishMock(){ clearInterval(mockTimer); mockMode=false; var _st=$('star
     missed.forEach(function(mm){ var q=mm.q; var d=document.createElement('div'); d.className='review'; var your=mm.your>=0?q.o[mm.your]:'(left blank)';
       d.innerHTML='<div class="rq">'+q.q+'</div><div class="ry">Your answer: <b>'+your+'</b></div><div class="rc">✅ '+q.o[q.a]+'</div><div class="re">'+q.e+'</div>'+srcHTML(q); chips.appendChild(d); }); }
   else { var g=document.createElement('div'); g.style.cssText='color:var(--good);font-weight:800;margin-top:10px'; g.textContent='Perfect — 25/25!'; chips.appendChild(g); }
-  $('rRetry').style.display=S.missed.length?'inline-block':'none'; if(pass)bigConfetti(); show('results'); }
+  $('rRetry').style.display=S.missed.length?'inline-block':'none'; if(pass){bigConfetti();sfx('win');} show('results'); }
 function finish(){
   const pct=Math.round(correctCount/queue.length*100);
   if(pct>S.best){S.best=pct;save();}
@@ -1045,7 +1060,7 @@ function finish(){
   if(missedNow.length){const t=document.createElement('div');t.style.margin='10px 0 2px';t.style.color='var(--muted)';t.style.fontWeight='700';t.textContent='Topics to revisit:';chips.appendChild(t);
     [...new Set(missedNow.map(q=>q.m))].forEach(m=>{const s=document.createElement('span');s.className='pill';s.textContent=m;chips.appendChild(s)});}
   $('rRetry').style.display=S.missed.length?'inline-block':'none';
-  if(pass)bigConfetti();
+  if(pass){bigConfetti();sfx('win');}
   show('results');
 }
 function retryMissed(){if(!S.missed.length){goHome();return}queue=shuffle(S.missed.map(i=>BANK[i]).filter(Boolean));begin();}
@@ -1135,7 +1150,7 @@ function stopAudio(){try{if('speechSynthesis' in window)speechSynthesis.cancel()
 let clipAudio=null;
 function stopClip(){ if(clipAudio){try{clipAudio.pause();}catch(e){} clipAudio=null;} }
 function playClip(key,text,onend){ stopClip(); try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}
-  var a=new Audio('audio/'+key+'.mp3'); clipAudio=a; var done=false;
+  var a=new Audio('audio/'+key+'.mp3'); clipAudio=a; try{a.playbackRate=S.clipRate||1;}catch(e){} a.oncanplay=function(){try{a.playbackRate=S.clipRate||1;}catch(e){}}; var done=false;
   var fb=function(){ if(done)return; done=true; clipAudio=null; speak((text||'').replace(/\s*\([^)]*\)/g,''),onend); };
   a.onended=function(){ if(done)return; done=true; clipAudio=null; if(onend)onend(); };
   a.onerror=fb;
@@ -1186,12 +1201,12 @@ const MAP=[
 {t:"Triennial license 🎉",d:"Sustained compliance over time earns a 3-year license."},
 ];
 function startMap(){const tl=$('tl');tl.innerHTML='';MAP.forEach((s,i)=>{const d=document.createElement('div');d.className='tlnode';
-  d.innerHTML='<div class="tlnum">'+(i+1)+'</div><div class="tlbody"><b>'+s.t+'</b><div class="tldetail">'+s.d+'</div></div>';
+  d.innerHTML='<div class="tlnum">'+(i+1)+'</div><div class="tlbody"><b>'+s.t+'</b><div class="tldetail">'+s.d+jargonFeedback(s.t+' '+s.d)+'</div></div>';
   d.onclick=()=>d.classList.toggle('open');tl.appendChild(d);});show('map');}
 
 /* ---------- LISTEN MODE ---------- */
 let lIdx=0, lPlaying=false, lScript=[];
-function startListen(){lScript=FLASH.map(c=>c[0]+'. '+c[1]+'. '+c[2].replace(/^🧠\s*/,'Memory tip: '));
+function startListen(){var _ls=$('lspeed'); if(_ls)_ls.textContent=(S.clipRate||1)+'×'; lScript=FLASH.map(c=>c[0]+'. '+c[1]+'. '+c[2].replace(/^🧠\s*/,'Memory tip: '));
   lIdx=0;lPlaying=false;$('lplay').textContent='▶ Play';show('listen');renderListen();}
 function renderListen(){$('lbar').style.width=Math.round(lIdx/lScript.length*100)+'%';$('ltag').textContent='Listen '+(lIdx+1)+' / '+lScript.length;
   $('lbig').textContent=lScript[lIdx].replace(/<[^>]+>/g,' ');}
@@ -1718,6 +1733,21 @@ function jargonHTML(text){ var low=(text||'').replace(/<[^>]+>/g,' ').toLowerCas
 function coachHTML(o,extra){ if(!o)return ''; function b(lab,items){ return (items&&items.length)?'<div class="cgrp"><b>'+lab+'</b><ul>'+items.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>':''; }
   var scan=[].concat(o.r||[],o.c||[],o.a||[]).join(' ')+' '+(extra||'');
   return '<div class="ctitle">🧠 Coach&rsquo;s rationale</div>'+b('📌 Remember',o.r)+b('🔗 Connect',o.c)+b('🎯 Apply',o.a)+jargonHTML(scan); }
+function jargonFeedback(t){var j=jargonHTML(t);return j?'<div class="coach" style="margin-top:10px">'+j+'</div>':'';}
+
+/* ---------- sound fx + pop-outs + clip speed ---------- */
+let _actx=null;
+function sfx(type){ if(!S.sfx)return; try{ _actx=_actx||new (window.AudioContext||window.webkitAudioContext)(); if(_actx.state==='suspended')_actx.resume(); var t=_actx.currentTime;
+  function tone(f,dur,when,wave,vol){ var o=_actx.createOscillator(),g=_actx.createGain(); o.type=wave||'sine'; o.frequency.value=f; o.connect(g); g.connect(_actx.destination); g.gain.setValueAtTime(0.0001,t+when); g.gain.exponentialRampToValueAtTime(vol||0.08,t+when+0.012); g.gain.exponentialRampToValueAtTime(0.0001,t+when+dur); o.start(t+when); o.stop(t+when+dur+0.02); }
+  if(type==='correct'){tone(660,0.13,0);tone(990,0.18,0.08);}
+  else if(type==='wrong'){tone(200,0.2,0,'sawtooth',0.05);tone(150,0.22,0.05,'sawtooth',0.04);}
+  else if(type==='click'){tone(500,0.05,0,'square',0.035);}
+  else if(type==='pop'){tone(760,0.07,0,'triangle',0.05);}
+  else if(type==='win'){tone(523,0.13,0);tone(659,0.13,0.11);tone(784,0.13,0.22);tone(1047,0.25,0.33);}
+}catch(e){} }
+function toggleSfx(){ S.sfx=!S.sfx; save(); var b=$('sfxbtn'); if(b)b.textContent=S.sfx?'🔊':'🔇'; if(S.sfx)sfx('pop'); }
+function xpPop(n){ try{ var el=document.createElement('div'); el.className='xppop'; el.textContent='+'+n+' XP'; document.body.appendChild(el); setTimeout(function(){el.remove();},1000);}catch(e){} }
+function cycleClipSpeed(){ var r=[1,1.25,1.5,1.75,2,0.85]; var i=r.indexOf(S.clipRate||1); S.clipRate=r[(i<0?0:i+1)%r.length]; save(); var b=$('lspeed'); if(b)b.textContent=S.clipRate+'×'; if(clipAudio){try{clipAudio.playbackRate=S.clipRate;}catch(e){}} }
 
 /* ---------- CONFETTI ---------- */
 const cv=$('fx'),ctx=cv.getContext('2d');let parts=[];
