@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DBHDS Exam Trainer</title>
+<style>
+  :root{
+    --bg:#0f1226; --card:#1b1f3b; --card2:#232a52; --ink:#f4f6ff; --muted:#a6afd6;
+    --brand:#7c9cff; --brand2:#63e6be; --good:#3ddc97; --bad:#ff6b81; --warn:#ffcf5c;
+    --ring:#2c3566; --shadow:0 12px 40px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 700px at 20% -10%,#1a2050 0%,#0f1226 55%) fixed;
+    color:var(--ink);min-height:100vh;line-height:1.5;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+  .topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .brandmark{font-weight:800;font-size:18px;letter-spacing:.2px;display:flex;align-items:center;gap:8px}
+  .dot{width:11px;height:11px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));box-shadow:0 0 14px var(--brand)}
+  .spacer{flex:1}
+  .stat{background:var(--card);border:1px solid var(--ring);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:6px}
+  .stat small{color:var(--muted);font-weight:600}
+  .flame{filter:drop-shadow(0 0 6px #ff8a3d)}
+  .card{background:linear-gradient(180deg,#1d2246,#171b38);border:1px solid var(--ring);border-radius:22px;box-shadow:var(--shadow);padding:22px}
+  .progress{height:10px;background:#141833;border-radius:999px;overflow:hidden;margin:2px 0 16px;border:1px solid var(--ring)}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .4s cubic-bezier(.2,.8,.2,1)}
+  h1{font-size:26px;margin:.2em 0 .1em}
+  h2{font-size:20px;margin:.1em 0 .5em}
+  p.sub{color:var(--muted);margin:.2em 0 1.1em}
+  .tag{display:inline-block;font-size:12px;font-weight:700;color:#cdd6ff;background:#2a3266;border:1px solid #3a4488;padding:3px 10px;border-radius:999px;margin-bottom:12px}
+  .q{font-size:20px;font-weight:700;margin:4px 0 16px}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{display:flex;gap:12px;align-items:flex-start;text-align:left;background:#20264d;border:1.5px solid #313a72;color:var(--ink);
+       padding:14px 16px;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;transition:transform .06s,border-color .15s,background .15s}
+  .opt:hover{border-color:var(--brand);background:#242c58}
+  .opt:active{transform:scale(.99)}
+  .opt .key{flex:0 0 26px;height:26px;border-radius:8px;background:#323b76;color:#dfe5ff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .opt.correct{border-color:var(--good);background:rgba(61,220,151,.14)}
+  .opt.correct .key{background:var(--good);color:#06301f}
+  .opt.wrong{border-color:var(--bad);background:rgba(255,107,129,.14)}
+  .opt.wrong .key{background:var(--bad);color:#3a0011}
+  .opt.dim{opacity:.55}
+  .opt[disabled]{cursor:default}
+  .feedback{margin-top:16px;border-radius:14px;padding:14px 16px;font-size:15px;display:none;animation:pop .25s ease}
+  .feedback.show{display:block}
+  .feedback.ok{background:rgba(61,220,151,.12);border:1px solid var(--good)}
+  .feedback.no{background:rgba(255,107,129,.10);border:1px solid var(--bad)}
+  .feedback .head{font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .feedback .mnem{margin-top:8px;color:var(--warn);font-weight:700;font-size:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  button.btn{border:none;border-radius:14px;padding:13px 20px;font-size:16px;font-weight:800;cursor:pointer;transition:transform .06s,filter .15s}
+  button.btn:active{transform:scale(.98)}
+  .btn.primary{background:linear-gradient(135deg,var(--brand),#9a7cff);color:#0b1030;box-shadow:0 8px 22px rgba(124,156,255,.35)}
+  .btn.ghost{background:#20264d;color:var(--ink);border:1.5px solid #313a72}
+  .btn.good{background:linear-gradient(135deg,var(--good),#39c8ff);color:#062a1c}
+  .btn.wide{width:100%}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+  .mode{display:flex;gap:12px;align-items:flex-start;background:#20264d;border:1.5px solid #313a72;border-radius:16px;padding:16px;cursor:pointer;transition:border-color .15s,transform .06s}
+  .mode:hover{border-color:var(--brand)}
+  .mode:active{transform:scale(.99)}
+  .mode .emoji{font-size:26px}
+  .mode b{display:block;font-size:16px}
+  .mode span{color:var(--muted);font-size:13px}
+  select{background:#20264d;color:var(--ink);border:1.5px solid #313a72;border-radius:12px;padding:11px 12px;font-size:15px;font-weight:600;width:100%}
+  label.lbl{display:block;font-size:13px;color:var(--muted);font-weight:700;margin:14px 0 6px}
+  .hint{color:var(--muted);font-size:12.5px;margin-top:14px;text-align:center}
+  kbd{background:#2a3266;border:1px solid #3a4488;border-bottom-width:2px;border-radius:6px;padding:1px 7px;font-size:12px;font-weight:700}
+  .big{font-size:44px;font-weight:900;background:linear-gradient(135deg,var(--brand),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .center{text-align:center}
+  .flash{min-height:150px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:20px;font-weight:700;padding:10px}
+  .flashback{color:var(--brand2)}
+  .pill{display:inline-block;background:#2a3266;border:1px solid #3a4488;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700;margin:4px 4px 0 0}
+  .starbtn{background:none;border:none;cursor:pointer;font-size:22px;line-height:1;filter:grayscale(1);opacity:.6;transition:.15s}
+  .starbtn.on{filter:none;opacity:1;transform:scale(1.15)}
+  canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:60}
+  @keyframes pop{from{transform:translateY(6px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .streakbanner{text-align:center;font-weight:800;color:var(--warn);margin-top:8px;height:20px}
+  .foot{margin-top:22px;text-align:center;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brandmark"><span class="dot"></span>DBHDS Exam Trainer</div>
+    <div class="spacer"></div>
+    <div class="stat">⭐ <span id="xp">0</span><small>XP</small></div>
+    <div class="stat"><span class="flame">🔥</span><span id="streak">0</span><small>streak</small></div>
+    <div class="stat">🏆 <span id="best">0</span><small>best</small></div>
+  </div>
+
+  <!-- HOME -->
+  <div id="home" class="card">
+    <h1>Ready to lock it in? 🧠</h1>
+    <p class="sub">Bite-size rounds, instant feedback, and streaks. Pick a mode — you can bail anytime, no pressure.</p>
+    <div class="grid">
+      <div class="mode" onclick="start('sprint')"><div class="emoji">⚡</div><div><b>10-Q Sprint</b><span>Quick win. Random mix, ~3 min.</span></div></div>
+      <div class="mode" onclick="start('full')"><div class="emoji">🎯</div><div><b>Full Quiz</b><span>Every question, shuffled.</span></div></div>
+      <div class="mode" onclick="start('module')"><div class="emoji">📚</div><div><b>By Module</b><span>Drill one topic at a time.</span></div></div>
+      <div class="mode" onclick="start('flash')"><div class="emoji">🃏</div><div><b>Flashcards</b><span>Cram key facts, no scoring.</span></div></div>
+      <div class="mode" onclick="start('missed')"><div class="emoji">🔁</div><div><b>Missed Only</b><span id="missedCount">Nothing missed yet.</span></div></div>
+      <div class="mode" onclick="start('starred')"><div class="emoji">⭐</div><div><b>Starred</b><span id="starCount">Star tricky ones to save them.</span></div></div>
+    </div>
+    <label class="lbl" for="modpick" id="modpickLbl" style="display:none">Choose a module</label>
+    <select id="modpick" style="display:none"></select>
+    <div class="hint">Tips: press <kbd>1</kbd>–<kbd>4</kbd> to answer, <kbd>Space</kbd> for next, <kbd>Esc</kbd> to go home.</div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" class="card" style="display:none">
+    <div class="progress"><i id="bar"></i></div>
+    <span class="tag" id="qtag">Module</span>
+    <button class="starbtn" id="star" title="Star this question" onclick="toggleStar()" style="float:right">☆</button>
+    <div class="q" id="qtext"></div>
+    <div class="opts" id="opts"></div>
+    <div class="feedback" id="fb"></div>
+    <div class="streakbanner" id="sbanner"></div>
+    <div class="row">
+      <button class="btn ghost" onclick="goHome()">← Home</button>
+      <div class="spacer"></div>
+      <button class="btn primary" id="next" onclick="nextQ()" style="display:none">Next →</button>
+    </div>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div id="flashm" class="card" style="display:none">
+    <div class="progress"><i id="fbar"></i></div>
+    <span class="tag" id="ftag">Flashcards</span>
+    <div class="flash" id="fcard"></div>
+    <div class="center" id="fanswer" style="display:none">
+      <div class="flashback" id="ftext" style="font-size:19px;font-weight:800"></div>
+    </div>
+    <div class="row">
+      <button class="btn ghost" onclick="goHome()">← Home</button>
+      <div class="spacer"></div>
+      <button class="btn good" id="flip" onclick="flip()">Flip 🔄</button>
+      <button class="btn primary" id="fnext" onclick="fNext()" style="display:none">Next →</button>
+    </div>
+    <div class="hint">Say the answer out loud first, <em>then</em> flip. Retrieval beats re-reading.</div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results" class="card center" style="display:none">
+    <h1 id="rEmoji">🎉</h1>
+    <div class="big" id="rScore">0%</div>
+    <h2 id="rMsg">Nice work!</h2>
+    <p class="sub" id="rDetail"></p>
+    <div id="rChips"></div>
+    <div class="row" style="justify-content:center;margin-top:18px">
+      <button class="btn ghost" onclick="goHome()">🏠 Home</button>
+      <button class="btn primary" id="rRetry" onclick="retryMissed()">🔁 Redo missed</button>
+      <button class="btn good" onclick="location.reload()">↻ New round</button>
+    </div>
+  </div>
+
+  <div class="foot">DBHDS Office of Licensing · Initial Applicant Orientation · study aid, not an official exam</div>
+</div>
+
+<script>
+/* ---------------- QUESTION BANK ---------------- */
+const BANK = [
+/* M1 */
+{m:"M1 · Overview",q:"What score do you need on each module Assessment AND the Comprehensive Knowledge Exam?",o:["75%","80%","85%","90%"],a:2,e:"85% is the single passing bar everywhere in the orientation.",mn:"“85 or wait” — one number for everything."},
+{m:"M1 · Overview",q:"The Comprehensive Knowledge Exam is…",o:["25 questions, 90 min, proctored on Microsoft Teams","50 questions, 60 min, in person","16 questions, untimed, in TRAIN","100 questions, proctored on Zoom"],a:0,e:"25 Q · 90 min · virtual/proctored on Teams · cameras on · monthly · covers all 16 modules.",mn:"25 & 90, cameras on."},
+{m:"M1 · Overview",q:"Effective date of the requirement to complete orientation + pass the exam before applying:",o:["November 7, 2025","January 1, 2026","July 1, 2024","November 7, 2021"],a:0,e:"Effective Nov 7, 2025 for anyone applying for a Priority 1 or 2 service."},
+{m:"M1 · Overview",q:"True or False: Module Assessments are timed and you get only one attempt.",o:["True","False"],a:1,e:"False. Assessments are NOT timed and have UNLIMITED retakes. Only the final Exam is timed (90 min).",mn:"Assessments = unlimited & untimed; Exam = one shot, 90 min."},
+{m:"M1 · Overview",q:"“MAC” stands for:",o:["Main Authorized Contact","Managed Applicant Certificate","Medicaid Approval Code","Master Application Checklist"],a:0,e:"The Main Authorized Contact manages CONNECT and has full Provider Portal Dashboard access."},
+
+/* M2 */
+{m:"M2 · Office of Licensing",q:"What does the Office of Licensing DO?",o:["Only issues licenses","Issues licenses, monitors compliance, conducts investigations, enforces action","Provides direct care","Funds Medicaid waivers"],a:1,e:"Four verbs: issue, monitor, investigate, enforce."},
+{m:"M2 · Office of Licensing",q:"Which regulation chapter is the GENERAL regulations (most services)?",o:["12VAC35-46","12VAC35-105","12VAC35-115","37.2-403"],a:1,e:"105 = general regs. 46 = children's residential. 115 = human rights.",mn:"105 = the big general bucket."},
+{m:"M2 · Office of Licensing",q:"How many individuals may a sponsored residential home serve?",o:["No more than 2","No more than 4","Up to 8","Up to 12"],a:0,e:"Sponsored residential = no more than 2 individuals (a service-specific reg)."},
+{m:"M2 · Office of Licensing",q:"A conditional license plus all renewals may not exceed:",o:["6 months","12 successive months","24 months","36 months"],a:1,e:"6 months per issuance, 12 successive months combined max.",mn:"6 + 6 = 12."},
+{m:"M2 · Office of Licensing",q:"“Developmental disability” must manifest before what age?",o:["Age 18","Age 21","Age 22","Age 25"],a:2,e:"Before age 22, with substantial limits in 3+ major life-activity areas.",mn:"DD before 22; ID/brain injury after ≠ DD."},
+
+/* M3 */
+{m:"M3 · Preparing to Apply",q:"Regulation 450 covers:",o:["Risk management","Employee training and development","Quality improvement","Physical environment"],a:1,e:"450 = employee training. 520 = risk management. 620 = quality improvement.",mn:"4-5-0 train · 5-2-0 risk · 6-2-0 quality."},
+{m:"M3 · Preparing to Apply",q:"Why subscribe to the OL email list?",o:["It's legally required","So a changed requirement doesn't get your application rejected","To get the exam early","To skip modules"],a:1,e:"Miss a change because you weren't subscribed → your application can be rejected."},
+{m:"M3 · Preparing to Apply",q:"The 520.C systemic risk assessment must be done at least:",o:["Monthly","Quarterly","Annually","Every 3 years"],a:2,e:"At least annually, covering 5 areas (environment, clinical assessment, staff competence, high-risk procedures, serious incident review)."},
+
+/* M4 */
+{m:"M4 · Provider Responsibilities",q:"A Priority 1 (green) application is pulled/assigned within about:",o:["5–10 business days","21 business days","30 calendar days","90 days"],a:0,e:"P1 green = 5–10 business days. P2 blue = 21 business days. Non-priority = a year+.",mn:"1→10ish, 2→21."},
+{m:"M4 · Provider Responsibilities",q:"Revision deadline after a deficiency letter for a PRIORITY application:",o:["10 business days","30 calendar days","90 calendar days","15 business days"],a:1,e:"Priority = 30 calendar days (reminder day 25). Non-priority = 90 calendar days. Miss it → application closed.",mn:"Priority 30, Non-priority 90 (calendar)."},
+{m:"M4 · Provider Responsibilities",q:"Two specialists review an application, in order:",o:["Licensing Specialist then Policy Review Specialist","Policy Review Specialist then Licensing Specialist","Investigator then Manager","Commissioner then Director"],a:1,e:"Policy Review first (compliance + deficiency letters), then Licensing Specialist (assigned after revisions accepted)."},
+{m:"M4 · Provider Responsibilities",q:"True or False: A provider may serve individuals before requesting background & central registry checks for direct care staff and supervisors.",o:["True","False"],a:1,e:"False — you may NOT serve anyone until those checks are requested for all direct care staff and supervisors."},
+
+/* M5 */
+{m:"M5 · The Initial Application",q:"How many documents are required for EVERY service in the initial application?",o:["5","6","8","10"],a:2,e:"8: service description, SCC cert of authority, org structure, 90-day financials, working budget, staffing plan, position descriptions, policies & procedures.",mn:"Ate (8) documents for every service."},
+{m:"M5 · The Initial Application",q:"“Evidence of financial resources” must cover how many days of operating expenses?",o:["30 days","60 days","90 days","180 days"],a:2,e:"90 days of projected operating expenses; the statement must be current within 90 days too."},
+{m:"M5 · The Initial Application",q:"Missing a required deadline leads to a ______; submitting false info leads to a ______.",o:["denial / closure","closure / denial","closure / closure","denial / denial"],a:1,e:"Missed deadline = administrative CLOSURE (can reapply). False info / no cert of occupancy / co-location = DENIAL.",mn:"Deadline = close; Dishonest = deny."},
+{m:"M5 · The Initial Application",q:"The proposed working budget covers the first:",o:["3 months","6 months","12 months","24 months"],a:2,e:"First 12 months of revenue and expenses, specific to the service."},
+
+/* M6 */
+{m:"M6 · CONNECT",q:"CONNECT went live in:",o:["November 2021","June 2025","July 2024","January 2026"],a:0,e:"Nov 2021, replacing paper. Vendor = GL Solutions.",},
+{m:"M6 · CONNECT",q:"True or False: You can change the service you applied for after submitting in CONNECT.",o:["True","False"],a:1,e:"False. Service selection is LOCKED once submitted — choose carefully."},
+{m:"M6 · CONNECT",q:"In the Communication Center, the preferred way to reach the Office of Licensing is:",o:["Personal email","Messaging (recorded in the provider record)","Phone only","Fax"],a:1,e:"Messaging is preferred and kept in the provider record. The Correspondence Inbox only logs notices."},
+
+/* M7 */
+{m:"M7 · Inspections",q:"Physical environment: individual-use areas must be kept between what temperatures?",o:["60–75°F","65–80°F","68–78°F","70–85°F"],a:1,e:"Air 65–80°F. Hot water 100–120°F. (Don't swap them.)",mn:"Air 65–80, Water 100–120."},
+{m:"M7 · Inspections",q:"After the conditional period, Office of Licensing inspections are:",o:["Always scheduled in advance","Unannounced (except the initial licensing inspection)","Only annual","Only when requested"],a:1,e:"After conditional, all inspections are unannounced — except the initial inspection for residential, OTP, and CRCs."},
+{m:"M7 · Inspections",q:"A conditional license (per issuance) shall not exceed:",o:["3 months","6 months","12 months","1 year"],a:1,e:"6 months per issuance; 12 successive months combined with renewals."},
+{m:"M7 · Inspections",q:"A Health & Safety follow-up inspection happens within how long of the CAP being accepted?",o:["10 business days","15 business days","30 business days","30 calendar days"],a:2,e:"Within 30 business days of the CAP being accepted. All H&S CAPs get a follow-up."},
+
+/* M8 */
+{m:"M8 · CAPs",q:"A Corrective Action Plan is due within how long of the licensing report?",o:["10 business days","15 business days","30 calendar days","24 hours"],a:1,e:"15 business days. One extension (up to 10 more business days) only if requested before the due date — never for H&S.",mn:"15 to submit, +10 max extension."},
+{m:"M8 · CAPs",q:"Under 170.C, an acceptable CAP must include all EXCEPT:",o:["Detailed corrective actions","A completion date for each action","A responsible person to oversee it","The name of the individual harmed"],a:3,e:"Three parts: corrective actions, a completion date each, a responsible person. Never individual names (HIPAA)."},
+{m:"M8 · CAPs",q:"In a dispute, who makes the FINAL decision?",o:["The licensing specialist","The supervisor","The Director of Licensing","The Commissioner"],a:2,e:"Specialist first → supervisor → the Director's determination is final (written, within 10 business days of the meeting)."},
+{m:"M8 · CAPs",q:"A provider that has NOT served any individuals for how long before license-end can't be assessed for compliance?",o:["30 days","60 days","90 consecutive days","6 months"],a:2,e:"90 consecutive days with no individuals served → can't assess compliance → a non-renewal trigger.",mn:"90 days empty = can't prove it."},
+
+/* M9 */
+{m:"M9 · CAPs in CONNECT",q:"The CAP status “Returned” means:",o:["Sent back to the provider for more work","Submitted and now WITH the Office of Licensing for review","Approved and closed","Rejected permanently"],a:1,e:"Counterintuitive! “Returned” = you returned it to OL; they hold it, you can't view it. Sent back for rework = re-Issued.",mn:"Returned = it's THEIR turn."},
+{m:"M9 · CAPs in CONNECT",q:"When writing a CAP response, you refer to staff by:",o:["Full name","Roles, titles, or HIPAA-form identifiers — never names","First name only","Employee SSN"],a:1,e:"HIPAA rule: never staff or individual names or PII — use roles/titles/identifiers."},
+{m:"M9 · CAPs in CONNECT",q:"True or False: Clicking “Save and Close” submits your CAP to the Office of Licensing.",o:["True","False"],a:1,e:"False. Only “Submit CAP” submits. Save & Close just saves — and not submitting can trigger more citations."},
+
+/* M10 */
+{m:"M10 · Modifications",q:"A service modification application must be submitted at least how far in advance?",o:["10 days","15 business days","30 days","90 days"],a:2,e:"At least 30 days in advance (12VAC35-105-60). Approval is at the Commissioner's sole discretion."},
+{m:"M10 · Modifications",q:"Which modification type can be submitted at ANY time?",o:["Service modification","Location modification","Information modification","None"],a:2,e:"Information modifications (record detail updates) anytime. Service/location generally once on an annual license."},
+{m:"M10 · Modifications",q:"An onsite inspection in the modification process is triggered ONLY for:",o:["All services","Residential, inpatient, and MAT services","Outpatient services","Case management"],a:1,e:"Only residential, inpatient, and MAT — and the inspection covers only the physical environment, before the license issues."},
+
+/* M11 */
+{m:"M11 · Background Checks",q:"Unless policy requires results first, fingerprints must be submitted within:",o:["24 hours","15 business days of hire","30 days","6 months"],a:1,e:"15 business days of the hire date (private/adult providers). Children's facilities are stricter — results BEFORE working.",mn:"15 to fingerprint (adult side)."},
+{m:"M11 · Background Checks",q:"The eligibility letter is accessible in CONNECT for only:",o:["30 days","90 days","Six months","One year"],a:2,e:"Six months (from fingerprint submission to state police). Print & file it or repeat the whole check (and pay again)."},
+{m:"M11 · Background Checks",q:"At a CHILDREN'S residential facility, background checks are required for:",o:["Only direct care staff","Only supervisors","All employees, volunteers, and contractors","Only new hires"],a:2,e:"Children's facilities: everyone. Private providers: direct care positions + their supervisors."},
+
+/* M12 */
+{m:"M12 · Incident Reporting",q:"Level II and Level III serious incidents are reported through CHRIS within:",o:["1 hour","24 hours of discovery","48 hours","5 business days"],a:1,e:"24 hours of discovery (160.D.2). The clock starts when the provider/any agent discovers it.",mn:"II & III → 24."},
+{m:"M12 · Incident Reporting",q:"Which is a LEVEL III serious incident?",o:["An emergency room visit","A serious injury","Any death of an individual","A choking requiring physical intervention"],a:2,e:"Level III = death, sexual assault, or suicide attempt (admitted, non-emergency) with hospital admission. The others are Level II.",mn:"III = Death, Sexual assault, Suicide-w/-admission."},
+{m:"M12 · Incident Reporting",q:"Level I serious incidents are:",o:["Reported through CHRIS within 24h","Not reported through CHRIS, but reviewed at least quarterly in the QI program","Never documented","Reported only to Human Rights"],a:1,e:"Level I: not through CHRIS, but collected & reviewed at least quarterly (160.C)."},
+{m:"M12 · Incident Reporting",q:"A root cause analysis for a Level II incident must be conducted within:",o:["24 hours","10 days","30 days of discovery","90 days"],a:2,e:"Within 30 days of discovery for Level II (and on-site/in-service Level III) — 160.E."},
+
+/* M13 */
+{m:"M13 · Crisis Services",q:"Which TWO crisis services are NOT licensed by DBHDS?",o:["Mobile Crisis Response & CSU","Regional Crisis Call Centers & CITACs","CRC & REACH","Community Stabilization & CSB Emergency Services"],a:1,e:"Regional Crisis Call Centers and CITACs are not DBHDS-licensed (they connect people to licensed services).",mn:"Call centers & CITACs = unlicensed."},
+{m:"M13 · Crisis Services",q:"The three Crisis Now access points are:",o:["Call · Respond · Somewhere to go","Screen · Admit · Discharge","Prevent · Treat · Bill","Assess · Refer · Close"],a:0,e:"Someone to call (call centers) · someone to respond (mobile crisis) · somewhere to go (23-hr CRC / CSU)."},
+{m:"M13 · Crisis Services",q:"A residential Crisis Stabilization Unit (CSU) may have no more than:",o:["8 beds","12 beds","16 beds","23 beds"],a:2,e:"No more than 16 beds — over 16 becomes a federal IMD (no Medicaid for ages 21–64).",mn:"16 beds keeps it out of IMD land."},
+{m:"M13 · Crisis Services",q:"A Crisis Receiving Center (CRC) provides observation/treatment for up to:",o:["8 hours","23 hours and 59 minutes","48 hours","72 hours"],a:1,e:"Up to 23:59. Center-based, recliners instead of beds, no-wrong-door."},
+
+/* M14 */
+{m:"M14 · Office of Human Rights",q:"Which does the Office of Human Rights NOT do?",o:["Enforce the Human Rights Regulations","Investigate every complaint itself & run a 24/7 hotline","Provide training and technical assistance","Oversee the human rights committees"],a:1,e:"OHR does NOT investigate all complaints, run a 24/7 hotline, provide emergency/safety-net response, or remove individuals."},
+{m:"M14 · Office of Human Rights",q:"Which policy must be approved BEFORE licensure?",o:["Behavior intervention policy","The complaint resolution policy (12VAC35-115-175)","Seclusion policy","Visitation policy"],a:1,e:"Only the complaint resolution policy is reviewed/approved before licensure; the rest come after the welcome letter."},
+{m:"M14 · Office of Human Rights",q:"Abuse/neglect/exploitation must be reported in CHRIS within:",o:["24 hours","Next business day","10 working days","48 hours"],a:0,e:"ANE → 24 hours. A complaint without ANE → next business day. Investigation report & director's decision → 10 working days."},
+
+/* M15 */
+{m:"M15 · HCBS",q:"Which residential condition can NEVER be modified?",o:["Choice of roommate","A lockable bedroom","Physical accessibility","Access to food at any time"],a:2,e:"Physical accessibility (condition E) is outside the modification process — it can never be restricted.",mn:"You can't modify the ramp."},
+{m:"M15 · HCBS",q:"Match the agency: “the money / single state Medicaid agency” is:",o:["CMS","DMAS","DBHDS","The General Assembly"],a:1,e:"CMS = federal funder/oversight. DMAS = state Medicaid agency (the money, participation agreement). DBHDS = day-to-day waiver ops + licensing.",mn:"DMAS = dollars."},
+{m:"M15 · HCBS",q:"Virginia's three DD waivers are:",o:["CL, FIS, BI","MH, SA, BI","ICF, IID, ID","ACT, MAT, CRC"],a:0,e:"Community Living, Family & Individual Supports, Building Independence (12VAC30-122)."},
+
+/* M16 */
+{m:"M16 · Final Prep",q:"To register for the exam you email which TWO items together?",o:["Résumé and cover letter","Exam Registration Request form and a scanned government photo ID","License and floor plan","Attestation and budget"],a:1,e:"Both in one email to OLTraining@dbhds.virginia.gov. Incomplete submissions aren't accepted.",mn:"Form + photo ID, one email."},
+{m:"M16 · Final Prep",q:"True or False: If you can't finish the exam, a retake is the exact same version.",o:["True","False"],a:1,e:"False — a retake is a DIFFERENT version of the exam."},
+];
+
+/* Flashcards: high-yield facts (front → back) */
+const FLASH = [
+ ["Passing score, everywhere","85% — every module Assessment AND the Comprehensive Exam"],
+ ["Comprehensive Exam format","25 questions · 90 minutes · Teams · proctored · cameras on · monthly · 85% to pass"],
+ ["Requirement effective date","November 7, 2025 (Priority 1 & 2 applicants)"],
+ ["The 3 regulation chapters","105 = general · 46 = children's residential · 115 = human rights"],
+ ["Reg 450 / 520 / 620","450 = training · 520 = risk management · 620 = quality improvement"],
+ ["Conditional license limit","6 months per issuance · 12 successive months max combined"],
+ ["Priority pull times","P1 (green) 5–10 business days · P2 (blue) 21 business days · Non-priority = year+"],
+ ["Deficiency revision windows","Priority 30 calendar days · Non-priority 90 calendar days"],
+ ["8 required documents","service desc · SCC cert · org chart · 90-day financials · budget · staffing plan · position descriptions · policies & procedures"],
+ ["Closure vs Denial","Missed deadline = CLOSURE (reapply) · false info / no cert of occupancy / co-location = DENIAL"],
+ ["Physical environment numbers","Air 65–80°F · hot water 100–120°F · room height 7.5 ft (areas added after 9/19/2002)"],
+ ["CAP timing","Due 15 business days · one extension +10 business days (before due date) · revised CAP 10 business days"],
+ ["5 CAP statuses","Complete-No Violations · Pending · Issued · Returned · Approved"],
+ ["“Returned” means","It's WITH the Office of Licensing for review (not back to you)"],
+ ["4 required points of a CAP response","(1) issue + fix (2) systemic change (3) monitor by title + frequency (4) completion dates"],
+ ["Background check: 15 business days","Fingerprints submitted within 15 business days of hire (adult/private side)"],
+ ["Eligibility letter window","Accessible in CONNECT only 6 months — print & file or repeat the check"],
+ ["Incident levels → reporting","Level I: quarterly QI review · Level II & III: CHRIS within 24 hours of discovery"],
+ ["Level III incidents","Death · sexual assault · suicide attempt (admitted, non-emergency) with hospital admission"],
+ ["Root cause analysis","Within 30 days of discovery (Level II & on-site/in-service Level III)"],
+ ["2 crisis services NOT licensed","Regional Crisis Call Centers & CITACs"],
+ ["CRC vs CSU","CRC = up to 23:59, recliners · CSU = residential, ≤16 beds, 3–5 days"],
+ ["OHR does NOT","investigate every complaint · run a 24/7 hotline · give emergency care · remove anyone"],
+ ["Only pre-licensure human rights policy","Complaint resolution policy (12VAC35-115-175)"],
+ ["HCBS 3 agencies","CMS (federal $) · DMAS (state Medicaid $ + agreement) · DBHDS (day-to-day + licensing)"],
+ ["Can never be modified (HCBS)","Physical accessibility"],
+ ["Exam registration","Email the Exam Registration form + scanned photo ID (same email) to OLTraining@dbhds.virginia.gov"],
+];
+
+/* ---------------- STATE ---------------- */
+let S = load();
+function load(){try{return JSON.parse(localStorage.getItem('dbhds')||'{}')}catch(e){return {}}}
+function save(){try{localStorage.setItem('dbhds',JSON.stringify(S))}catch(e){}}
+S.xp=S.xp||0; S.best=S.best||0; S.missed=S.missed||[]; S.starred=S.starred||[];
+
+let queue=[], idx=0, streak=0, correctCount=0, mode='', curFlash=[], fIdx=0, answered=false;
+
+const $=id=>document.getElementById(id);
+function setStats(){$('xp').textContent=S.xp;$('best').textContent=S.best+'%';$('streak').textContent=streak;
+  $('missedCount').textContent = S.missed.length? (S.missed.length+' to review'):'Nothing missed yet.';
+  $('starCount').textContent = S.starred.length? (S.starred.length+' saved'):'Star tricky ones to save them.';}
+setStats();
+
+/* build module dropdown */
+(function(){const mods=[...new Set(BANK.map(x=>x.m))];const sel=$('modpick');
+  mods.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o)});})();
+
+function show(id){['home','quiz','flashm','results'].forEach(x=>$(x).style.display='none');$(id).style.display='block';window.scrollTo(0,0)}
+function goHome(){setStats();$('modpick').style.display='none';$('modpickLbl').style.display='none';show('home')}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')goHome();
+  if($('quiz').style.display==='block'){
+    if(!answered && ['1','2','3','4'].includes(e.key)){const b=$('opts').children[+e.key-1];if(b)b.click();}
+    if(answered && (e.key===' '||e.key==='Enter')){e.preventDefault();nextQ();}
+  }
+  if($('flashm').style.display==='block' && (e.key===' '||e.key==='Enter')){e.preventDefault(); $('fanswer').style.display==='none'?flip():fNext();}
+});
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function idOf(q){return BANK.indexOf(q)}
+
+function start(m){
+  mode=m;
+  if(m==='module'){$('modpick').style.display='block';$('modpickLbl').style.display='block';
+    $('modpick').onchange=()=>{queue=BANK.filter(x=>x.m===$('modpick').value);begin()};
+    if($('modpick').value){queue=BANK.filter(x=>x.m===$('modpick').value)} return;}
+  if(m==='flash'){curFlash=shuffle(FLASH);fIdx=0;startFlash();return;}
+  if(m==='missed'){if(!S.missed.length){bump('Nothing to review yet — go earn some misses! 😄');return}queue=shuffle(S.missed.map(i=>BANK[i]).filter(Boolean));begin();return;}
+  if(m==='starred'){if(!S.starred.length){bump('No starred questions yet. Tap ☆ during a quiz.');return}queue=shuffle(S.starred.map(i=>BANK[i]).filter(Boolean));begin();return;}
+  if(m==='sprint'){queue=shuffle(BANK).slice(0,10);begin();return;}
+  queue=shuffle(BANK);begin();
+}
+function bump(t){const h=$('home');const d=document.createElement('div');d.className='hint';d.style.color='var(--warn)';d.textContent=t;h.appendChild(d);setTimeout(()=>d.remove(),2600)}
+
+function begin(){idx=0;streak=0;correctCount=0;show('quiz');render()}
+
+function render(){
+  answered=false;
+  const q=queue[idx];
+  $('bar').style.width=Math.round(idx/queue.length*100)+'%';
+  $('qtag').textContent=q.m;
+  $('qtext').textContent=q.q;
+  const starred=S.starred.includes(idOf(q));
+  $('star').textContent=starred?'★':'☆';$('star').classList.toggle('on',starred);
+  $('fb').className='feedback';$('fb').innerHTML='';
+  $('sbanner').textContent='';
+  $('next').style.display='none';
+  const wrap=$('opts');wrap.innerHTML='';
+  q.o.forEach((opt,i)=>{
+    const b=document.createElement('button');b.className='opt';
+    b.innerHTML=`<span class="key">${i+1}</span><span>${opt}</span>`;
+    b.onclick=()=>choose(i,b);wrap.appendChild(b);
+  });
+}
+function choose(i,btn){
+  if(answered)return;answered=true;
+  const q=queue[idx];const right=i===q.a;
+  [...$('opts').children].forEach((b,j)=>{b.disabled=true;
+    if(j===q.a)b.classList.add('correct');
+    else if(j===i)b.classList.add('wrong');
+    else b.classList.add('dim');});
+  const fb=$('fb');
+  if(right){
+    streak++;correctCount++;const gain=10+Math.min(streak,6)*2;S.xp+=gain;save();$('xp').textContent=S.xp;
+    fb.className='feedback ok show';
+    fb.innerHTML=`<div class="head">✅ Correct! +${gain} XP</div><div>${q.e}</div>${q.mn?`<div class="mnem">🧠 ${q.mn}</div>`:''}`;
+    if(streak>=3){$('sbanner').textContent=`🔥 ${streak} in a row!`;confetti();}
+    // remove from missed if present
+    S.missed=S.missed.filter(x=>x!==idOf(q));save();
+  }else{
+    streak=0;
+    if(!S.missed.includes(idOf(q))){S.missed.push(idOf(q));save();}
+    fb.className='feedback no show';
+    fb.innerHTML=`<div class="head">❌ Not quite — it's <u>${q.o[q.a]}</u></div><div>${q.e}</div>${q.mn?`<div class="mnem">🧠 ${q.mn}</div>`:''}`;
+  }
+  $('next').style.display='inline-block';$('next').textContent = idx+1<queue.length?'Next →':'See results →';
+}
+function toggleStar(){const q=queue[idx];const id=idOf(q);const on=S.starred.includes(id);
+  if(on)S.starred=S.starred.filter(x=>x!==id);else S.starred.push(id);save();
+  $('star').textContent=on?'☆':'★';$('star').classList.toggle('on',!on);setStats();}
+function nextQ(){idx++;if(idx<queue.length){render()}else{finish()}}
+
+function finish(){
+  const pct=Math.round(correctCount/queue.length*100);
+  if(pct>S.best){S.best=pct;save();}
+  setStats();
+  $('rScore').textContent=pct+'%';
+  const pass=pct>=85;
+  $('rEmoji').textContent=pass?'🎉':(pct>=60?'💪':'📖');
+  $('rMsg').textContent=pass?'You cleared the 85% bar!':(pct>=60?'Getting there — one more pass.':'Warm-up done. Let’s drill the misses.');
+  $('rDetail').textContent=`${correctCount} / ${queue.length} correct · ${S.xp} XP total · best ${S.best}%`;
+  const chips=$('rChips');chips.innerHTML='';
+  const missedNow=queue.filter((q)=>S.missed.includes(idOf(q)));
+  if(missedNow.length){const t=document.createElement('div');t.style.margin='10px 0 2px';t.style.color='var(--muted)';t.style.fontWeight='700';t.textContent='Topics to revisit:';chips.appendChild(t);
+    [...new Set(missedNow.map(q=>q.m))].forEach(m=>{const s=document.createElement('span');s.className='pill';s.textContent=m;chips.appendChild(s)});}
+  $('rRetry').style.display=S.missed.length?'inline-block':'none';
+  if(pass)bigConfetti();
+  show('results');
+}
+function retryMissed(){if(!S.missed.length){goHome();return}queue=shuffle(S.missed.map(i=>BANK[i]).filter(Boolean));begin();}
+
+/* ---------- FLASHCARDS ---------- */
+function startFlash(){show('flashm');renderFlash()}
+function renderFlash(){
+  const c=curFlash[fIdx];$('fbar').style.width=Math.round(fIdx/curFlash.length*100)+'%';
+  $('ftag').textContent=`Flashcard ${fIdx+1} / ${curFlash.length}`;
+  $('fcard').textContent=c[0];$('ftext').textContent=c[1];
+  $('fanswer').style.display='none';$('flip').style.display='inline-block';$('fnext').style.display='none';
+}
+function flip(){$('fanswer').style.display='block';$('flip').style.display='none';$('fnext').style.display='inline-block';$('fnext').textContent=fIdx+1<curFlash.length?'Next →':'Done →';}
+function fNext(){fIdx++;if(fIdx<curFlash.length)renderFlash();else goHome();}
+
+/* ---------- CONFETTI ---------- */
+const cv=$('fx'),ctx=cv.getContext('2d');let parts=[];
+function resize(){cv.width=innerWidth;cv.height=innerHeight}resize();addEventListener('resize',resize);
+function confetti(n=26){for(let i=0;i<n;i++)parts.push(mk())}
+function bigConfetti(){for(let i=0;i<160;i++)parts.push(mk())}
+function mk(){const c=['#7c9cff','#63e6be','#ffcf5c','#ff6b81','#9a7cff','#3ddc97'];
+  return{x:innerWidth/2+(Math.random()-.5)*260,y:innerHeight*0.35+(Math.random()-.5)*120,
+    vx:(Math.random()-.5)*7,vy:Math.random()*-9-3,g:.28,s:Math.random()*7+4,
+    col:c[Math.random()*c.length|0],rot:Math.random()*6,vr:(Math.random()-.5)*.4,life:70+Math.random()*40}}
+function loop(){ctx.clearRect(0,0,cv.width,cv.height);
+  parts.forEach(p=>{p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.life--;
+    ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.col;ctx.globalAlpha=Math.max(0,p.life/60);
+    ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);ctx.restore();});
+  parts=parts.filter(p=>p.life>0&&p.y<cv.height+40);requestAnimationFrame(loop)}
+loop();
+</script>
+</body>
+</html>
