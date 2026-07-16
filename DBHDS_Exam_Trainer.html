@@ -110,6 +110,72 @@
   .navzone.left{left:0}.navzone.right{right:0}
   @keyframes rise{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
   @keyframes bounce{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+  /* Story / Versus / Map / Listen */
+  .chip2{display:inline-block;background:#2a3266;border:1px solid #3a4488;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:800;color:#cdd6ff;margin-bottom:10px}
+  .storytext{font-size:19px;line-height:1.55;font-weight:600;margin:6px 0 14px;animation:pop .3s ease}
+  .storytext b{color:#cfe0ff}
+  .lockbox{background:rgba(61,220,151,.12);border:1px solid var(--good);border-radius:14px;padding:12px 14px;margin-top:2px;font-size:15px}
+  .lockbox b{color:var(--good)}
+  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;margin:8px 0 4px;animation:pop .3s ease}
+  .vs .col{background:#20264d;border:1.5px solid #313a72;border-radius:14px;padding:14px}
+  .vs .col h3{margin:0 0 8px;font-size:16px;color:var(--brand2)}
+  .vs .col.r h3{color:var(--warn)}
+  .vs ul{margin:0;padding-left:18px}
+  .vs li{font-size:14px;margin-bottom:6px}
+  .vs li b{color:#cfe0ff}
+  .vs .mid{display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--muted);font-size:15px;padding:0 8px}
+  @media(max-width:560px){.vs{grid-template-columns:1fr;gap:8px}.vs .mid{padding:2px}}
+  .keyline{margin-top:12px;background:rgba(255,207,92,.10);border:1px dashed rgba(255,207,92,.6);border-radius:12px;padding:10px 12px;font-weight:700;color:var(--warn);font-size:15px}
+  .keyline b{color:#fff}
+  .tl{margin:4px 0 0}
+  .tlnode{display:flex;gap:12px;cursor:pointer;padding:6px 0}
+  .tlnum{flex:0 0 30px;height:30px;border-radius:50%;background:#2a3266;border:1.5px solid #3a4488;color:#dfe5ff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .tlbody{flex:1;border-bottom:1px solid #262e5c;padding-bottom:8px}
+  .tlbody b{font-size:15px}
+  .tldetail{display:none;margin-top:6px;color:var(--muted);font-size:14px;line-height:1.5}
+  .tlnode.open .tlnum{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#0b1030}
+  .tlnode.open .tldetail{display:block;animation:pop .25s ease}
+  .listenbig{min-height:130px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:20px;font-weight:700;padding:8px;line-height:1.45}
+  .audiobtn{background:#20264d;border:1.5px solid #313a72;color:var(--ink);border-radius:12px;padding:7px 12px;font-weight:800;cursor:pointer;font-size:14px}
+  .audiobtn:active{transform:scale(.97)}
+  .gitem{background:#20264d;border:1px solid #313a72;border-radius:12px;padding:11px 14px;margin-bottom:8px}
+  .gitem b{color:var(--brand2);font-size:15px}
+  .gitem .gf{color:#cfe0ff;font-weight:600;font-size:14px}
+  .gitem .gd{color:var(--muted);font-size:13px;margin-top:3px}
+  /* Podcast player */
+  .podhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .podshow{font-weight:900;font-size:18px}
+  .podep{color:var(--muted);font-size:12.5px;font-weight:700;margin-top:2px}
+  .eq{display:flex;gap:3px;align-items:flex-end;height:22px;opacity:.3}
+  .eq.on{opacity:1}
+  .eq span{width:4px;height:7px;background:linear-gradient(var(--brand2),var(--brand));border-radius:2px}
+  .eq.on span{animation:eqa .9s ease-in-out infinite}
+  .eq.on span:nth-child(2){animation-delay:.15s}.eq.on span:nth-child(3){animation-delay:.3s}.eq.on span:nth-child(4){animation-delay:.45s}
+  @keyframes eqa{0%,100%{height:6px}50%{height:22px}}
+  .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:8px}
+  .chips .chip{flex:0 0 auto;width:30px;height:30px;border-radius:9px;border:1.5px solid #313a72;background:#20264d;color:#cdd6ff;font-weight:800;cursor:pointer;font-size:13px}
+  .chips .chip.on{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#0b1030;border-color:transparent}
+  .transcript{max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px 6px}
+  .bub{max-width:86%;padding:10px 13px;border-radius:16px;font-size:15px;line-height:1.45;cursor:pointer;border:1.5px solid transparent;transition:.15s;opacity:.72}
+  .bub .who{display:block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px;opacity:.85}
+  .bub.M{align-self:flex-start;background:#1e2b47;border-color:#274268}.bub.M .who{color:var(--brand2)}
+  .bub.T{align-self:flex-end;background:#2a2647;border-color:#3c356e}.bub.T .who{color:var(--warn)}
+  .bub.active{opacity:1;transform:scale(1.02);box-shadow:0 6px 20px rgba(0,0,0,.35)}
+  .bub.M.active{border-color:var(--brand2)}.bub.T.active{border-color:var(--warn)}
+  .scrub{height:8px;background:#141833;border:1px solid var(--ring);border-radius:999px;overflow:hidden;margin:12px 0 10px;cursor:pointer}
+  .scrub > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:width .2s}
+  .transport{display:flex;align-items:center;gap:10px}
+  .tbtn{background:#20264d;border:1.5px solid #313a72;color:var(--ink);border-radius:12px;width:46px;height:46px;font-size:18px;font-weight:800;cursor:pointer}
+  .tbtn:active{transform:scale(.95)}
+  .tbtn.big{width:58px;height:58px;font-size:22px;background:linear-gradient(135deg,var(--brand),#9a7cff);color:#0b1030;border:none}
+  .podline{color:var(--muted);font-size:12px;font-weight:700;margin-left:2px}
+  #podquiz{background:#191d3a;border:1.5px solid #34407e;border-radius:16px;padding:14px;margin:12px 0 4px;animation:pop .25s ease}
+  .pqhead{font-weight:800;color:var(--brand2);font-size:13px;margin-bottom:8px}
+  .pqq{font-weight:700;font-size:16px;margin-bottom:12px}
+  .pqfb{border-radius:12px;padding:11px 13px;font-size:14px;margin-top:12px}
+  .pqfb.ok{background:rgba(61,220,151,.12);border:1px solid var(--good)}
+  .pqfb.no{background:rgba(255,107,129,.10);border:1px solid var(--bad)}
+  .pqfb .lk{display:block;margin-top:6px;color:var(--brand2);font-weight:700}
 </style>
 </head>
 <body>
@@ -129,6 +195,11 @@
     <p class="sub">Bite-size rounds, instant feedback, streaks, and memory hooks. Bail anytime — no pressure.</p>
     <div class="grid">
       <div class="mode hot" onclick="start('reels')"><div class="emoji">🎬</div><div><b>Micro-Reels</b><span>Short-form animated "video" facts by module.</span></div></div>
+      <div class="mode hot" onclick="start('story')"><div class="emoji">🎙️</div><div><b>Story Mode</b><span>A two-host podcast — press play & listen.</span></div></div>
+      <div class="mode" onclick="start('versus')"><div class="emoji">⚔️</div><div><b>Versus</b><span>Confusable pairs, side by side.</span></div></div>
+      <div class="mode" onclick="start('map')"><div class="emoji">🗺️</div><div><b>Process Map</b><span>The whole licensing journey, tappable.</span></div></div>
+      <div class="mode" onclick="start('listen')"><div class="emoji">🔊</div><div><b>Listen Mode</b><span>Facts read aloud, hands-free.</span></div></div>
+      <div class="mode" onclick="start('glossary')"><div class="emoji">📔</div><div><b>Glossary</b><span>Every acronym, spelled out in plain English.</span></div></div>
       <div class="mode" onclick="start('sprint')"><div class="emoji">⚡</div><div><b>10-Q Sprint</b><span>Quick win. Random mix, ~3 min.</span></div></div>
       <div class="mode" onclick="start('module')"><div class="emoji">📚</div><div><b>By Module</b><span>Memory hooks, then drill one topic.</span></div></div>
       <div class="mode" onclick="start('flash')"><div class="emoji">🃏</div><div><b>Flashcards</b><span>Fact + memory tip on every card.</span></div></div>
@@ -202,6 +273,90 @@
     </div>
   </div>
 
+  <!-- STORY (two-host podcast) -->
+  <div id="story" class="card" style="display:none">
+    <div class="podhead">
+      <div><div class="podshow">🎙️ So You Want to Get Licensed</div><div class="podep" id="podep">Chapter 1</div></div>
+      <div class="eq" id="eq"><span></span><span></span><span></span><span></span></div>
+    </div>
+    <div class="chips" id="podchips"></div>
+    <div class="transcript" id="transcript"></div>
+    <div class="lockbox" id="storylock"></div>
+    <div id="podquiz" style="display:none">
+      <div class="pqhead">🎧 Quick check before we roll on…</div>
+      <div class="pqq" id="pqq"></div>
+      <div class="opts" id="pqopts"></div>
+      <div class="pqfb" id="pqfb" style="display:none"></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn ghost" id="pqskip" onclick="podQuizSkip()">Skip</button>
+        <div class="spacer"></div>
+        <button class="btn primary" id="pqcont" onclick="podQuizContinue()" style="display:none">Continue ▶</button>
+      </div>
+    </div>
+    <audio id="studioAudio" preload="metadata"></audio>
+    <div class="scrub" id="scrub" onclick="scrubClick(event)"><i id="scrubfill"></i></div>
+    <div class="transport">
+      <button class="tbtn" onclick="prevPod()" title="Previous line">⏮</button>
+      <button class="tbtn big" id="podplay" onclick="togglePod()" title="Play / Pause">▶</button>
+      <button class="tbtn" onclick="nextPodBtn()" title="Next line">⏭</button>
+      <button class="tbtn" id="podspeed" onclick="cycleSpeed()" title="Playback speed">1×</button>
+      <button class="tbtn" id="studiobtn" onclick="toggleStudio()" title="Play the studio recording" style="display:none">🎧</button>
+      <span class="podline" id="podline"></span>
+      <span class="spacer"></span>
+      <button class="btn ghost" onclick="goHome()">Exit</button>
+    </div>
+    <div class="hint">A two-host podcast — Maya &amp; Theo. ▶ play · tap a chapter number to jump · ⏮ ⏭ skip a line · 1× changes speed · tap any line to replay it.</div>
+  </div>
+
+  <!-- VERSUS -->
+  <div id="versus" class="card" style="display:none">
+    <div class="progress"><i id="vbar"></i></div>
+    <span class="tag" id="vtag">Compare</span>
+    <button class="audiobtn" id="vread" onclick="vsRead()" style="float:right">🔊 Listen</button>
+    <h2 id="vtitle" style="margin-top:6px"></h2>
+    <div class="vs" id="vsgrid"></div>
+    <div class="keyline" id="vkey"></div>
+    <div class="row">
+      <button class="btn ghost" onclick="goHome()">← Home</button>
+      <button class="btn ghost" onclick="vsPrev()">‹ Back</button>
+      <div class="spacer"></div>
+      <button class="btn primary" id="vnext" onclick="vsNext()">Next →</button>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div id="map" class="card" style="display:none">
+    <span class="tag">The licensing journey</span>
+    <h1 style="margin-top:6px">Tap a step to open it 🗺️</h1>
+    <p class="sub">The whole path, idea → license. See the skeleton first, then hang the facts on it.</p>
+    <div class="tl" id="tl"></div>
+    <div class="row"><button class="btn ghost" onclick="goHome()">← Home</button><div class="spacer"></div><button class="btn primary" onclick="start('story')">Walk it as a story →</button></div>
+  </div>
+
+  <!-- LISTEN -->
+  <div id="listen" class="card" style="display:none">
+    <div class="progress"><i id="lbar"></i></div>
+    <span class="tag" id="ltag">Listen mode</span>
+    <p class="sub">Hands-free. Key facts read aloud, one after another — walk, drive, or just close your eyes.</p>
+    <div class="listenbig" id="lbig">Tap Play to start 🔊</div>
+    <div class="row">
+      <button class="btn ghost" onclick="goHome()">← Home</button>
+      <div class="spacer"></div>
+      <button class="btn good" id="lplay" onclick="listenToggle()">▶ Play</button>
+      <button class="btn primary" onclick="listenNext()">Next →</button>
+    </div>
+    <div class="hint">Uses your device's built-in voice. Hear nothing? Check volume and the silent switch.</div>
+  </div>
+
+  <!-- GLOSSARY -->
+  <div id="glossary" class="card" style="display:none">
+    <span class="tag">Plain-English glossary</span>
+    <h1 style="margin-top:6px">What do all these letters mean? 📔</h1>
+    <p class="sub">Every acronym in this app, spelled out with a one-line meaning. Nothing assumed.</p>
+    <div id="gloss"></div>
+    <div class="row"><button class="btn ghost" onclick="goHome()">← Home</button></div>
+  </div>
+
   <div class="foot">DBHDS Office of Licensing · Initial Applicant Orientation · study aid, not an official exam</div>
 </div>
 
@@ -209,7 +364,7 @@
 <div id="reels">
   <div class="reelbg" id="reelbg"></div>
   <div class="segs" id="segs"></div>
-  <div class="reeltop"><span class="mtag" id="reelmtag"></span><button class="x" onclick="closeReels()">✕</button></div>
+  <div class="reeltop"><span class="mtag" id="reelmtag"></span><button class="x" id="reelspk" onclick="reelSpeak()">🔊</button><button class="x" onclick="closeReels()">✕</button></div>
   <div class="navzone left" onclick="reelPrev()"></div>
   <div class="navzone right" onclick="reelNext()"></div>
   <div class="reelstage"><div class="reelbeat" id="reelbeat"></div></div>
@@ -479,7 +634,7 @@ setStats();
 (function(){const mods=[...new Set(BANK.map(x=>x.m))];const sel=$('modpick');
   mods.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o)});})();
 
-function show(id){['home','hooks','quiz','flashm','results'].forEach(x=>$(x).style.display='none');$(id).style.display='block';window.scrollTo(0,0)}
+function show(id){stopAudio();['home','hooks','quiz','flashm','results','story','versus','map','listen','glossary'].forEach(x=>$(x).style.display='none');$(id).style.display='block';window.scrollTo(0,0)}
 function goHome(){setStats();$('modpick').style.display='none';$('modpickLbl').style.display='none';show('home')}
 document.addEventListener('keydown',e=>{
   if($('reels').style.display==='block'){ if(e.key==='Escape')closeReels(); if(e.key===' '){e.preventDefault();reelToggle();} if(e.key==='ArrowRight')reelNext(); if(e.key==='ArrowLeft')reelPrev(); return; }
@@ -497,6 +652,11 @@ function idOf(q){return BANK.indexOf(q)}
 function start(m){
   mode=m;
   if(m==='reels'){openReelsPicker();return;}
+  if(m==='story'){startStory();return;}
+  if(m==='versus'){startVersus();return;}
+  if(m==='map'){startMap();return;}
+  if(m==='listen'){startListen();return;}
+  if(m==='glossary'){startGlossary();return;}
   if(m==='module'){$('modpick').style.display='block';$('modpickLbl').style.display='block';
     $('modpick').onchange=()=>{pendingModule=$('modpick').value;showHooks(pendingModule)};
     if($('modpick').value){pendingModule=$('modpick').value} return;}
@@ -636,6 +796,7 @@ function renderReel(){
     box.innerHTML=`${sl._first?`<span class="reelemoji">${r.emoji}</span>`:''}<div class="reelbig">${sl.b}</div>${sl.s?`<div class="reelsub">${sl.s}</div>`:''}`;
   }
   startTimer();
+  if(reelAudio)speakBeat();
 }
 function startTimer(){
   clearTimeout(rTimer);
@@ -647,6 +808,8 @@ function startTimer(){
   rStart=Date.now();
   if(!rPaused) rTimer=setTimeout(reelNext,dur);
 }
+function reelSpeak(){reelAudio=!reelAudio;$('reelspk').textContent=reelAudio?'🔈':'🔊';if(reelAudio)speakBeat();else stopAudio();}
+function speakBeat(){const sl=reelSlides[rIdx];if(!sl)return;speak((sl.b+'. '+(sl.s||'')).replace(/<[^>]+>/g,' '));}
 function reelToggle(){
   rPaused=!rPaused;$('reelplay').textContent=rPaused?'▶ Play':'⏸ Pause';
   const bar=$('segs').children[rIdx].firstChild;
@@ -657,6 +820,351 @@ function reelToggle(){
 function reelNext(){ if(rIdx<reelSlides.length-1){rIdx++;renderReel();} else {closeReels();} }
 function reelPrev(){ if(rIdx>0){rIdx--;renderReel();} }
 function closeReels(){clearTimeout(rTimer);$('reels').style.display='none';S.xp+=5;save();setStats();goHome();}
+
+/* ---------- AUDIO (Web Speech) ---------- */
+let voice=null, reelAudio=false;
+function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/female|samantha|google us|zira|aria/i.test(v.name))||vs.find(v=>/^en/i.test(v.lang))||vs[0]||null;}catch(e){}}
+if('speechSynthesis' in window){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice;}catch(e){}}
+function speak(text,onend){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);if(voice)u.voice=voice;u.rate=1;u.pitch=1;if(onend)u.onend=onend;speechSynthesis.speak(u);}catch(e){if(onend)onend();}}
+function stopAudio(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){} reelAudio=false; lPlaying=false; var b=$('reelspk'); if(b)b.textContent='🔊';
+  if(typeof podPause==='function')podPause();
+  var sa=$('studioAudio'); if(sa)sa.pause(); var sb=$('studiobtn'); if(sb)sb.textContent='🎧';}
+
+/* ---------- STORY MODE (one provider's journey through all 16 modules) ---------- */
+const STORY=[
+{ch:"Ch 1 · The idea",t:"Amara wants to open a <b>group home for adults with developmental disabilities</b>. Before she can even apply, she hits a gate: she must finish the <b>Initial Applicant Orientation</b> and pass the Comprehensive Exam.",fact:"Since Nov 7, 2025, Priority 1 & 2 applicants must complete the 16 modules and pass the exam at <b>85%</b> before applying."},
+{ch:"Ch 1 · Why the gate",t:"The training is required because her service is a <b>Priority service</b> — the kind DBHDS most wants done right.",fact:"Priority 1 & 2 services trigger the orientation + exam requirement."},
+{ch:"Ch 2 · Who regulates her",t:"She meets the <b>Office of Licensing</b> — the team that issues her license, then watches to make sure she keeps her promises. Her region is <b>Region 4 · Central (gray)</b>.",fact:"OL <b>issues, monitors, investigates, and enforces</b>. Her services live under the general regs, <b>12VAC35-105</b>."},
+{ch:"Ch 2 · Her service",t:"An adult DD group home means <b>24-hour supervision</b> for a small number of people — a real home, not an institution.",fact:"Adult group home = 24-hour supervision, <b>8 or fewer</b> residents. (Children's group home = up to 12.)"},
+{ch:"Ch 3 · Homework",t:"Before writing a single policy, Amara reads the regulations and <b>subscribes to the OL email list</b> — because if a rule changes and she misses it, her application can be rejected. She zeroes in on three regs.",fact:"<b>450</b> = training · <b>520</b> = risk · <b>620</b> = quality. Subscribe or risk a surprise rejection."},
+{ch:"Ch 4 · The paperwork",t:"She assembles the <b>8 documents every service needs</b> — including proof she can cover <b>90 days</b> of expenses and a 12-month budget. Her service is <b>Priority 1 (green)</b>, so it moves fast.",fact:"8 docs for every service. Priority 1 is pulled in <b>5–10 business days</b>."},
+{ch:"Ch 5 · Into CONNECT",t:"She builds the application in <b>CONNECT</b>, the online portal, choosing her service carefully — because <b>once she submits, that choice is locked</b>.",fact:"CONNECT (live since 2021). Service selection is <b>locked once submitted</b>."},
+{ch:"Ch 5 · Accepted",t:"Her application is complete, so it's accepted onto the <b>Waitlist</b> and she gets a <b>welcome letter</b> telling her to start background checks right away.",fact:"She may <b>not serve anyone</b> until background & registry checks are requested for all direct care staff and supervisors."},
+{ch:"Ch 6 · Background checks",t:"Amara sends staff to Fieldprint. Fingerprints go in within <b>15 business days</b> of hire, and she prints each <b>eligibility letter</b> the moment it appears.",fact:"Eligibility letters vanish from CONNECT after <b>6 months</b> — print and file them."},
+{ch:"Ch 7 · Policy review",t:"A <b>Policy Review Specialist</b> checks her policies against the regs and sends back one deficiency. Because she's priority, she has <b>30 calendar days</b> to fix it.",fact:"Deficiency revisions: Priority <b>30 days</b>, Non-priority <b>90 days</b>. Miss it → application closes."},
+{ch:"Ch 8 · The inspection",t:"Because it's <b>residential</b>, a Licensing Specialist visits to inspect the physical environment <b>before any license issues</b>.",fact:"Physical environment: air <b>65–80°F</b>, hot water <b>100–120°F</b>."},
+{ch:"Ch 9 · Conditional license",t:"Amara earns her <b>conditional license</b> — her very first. She can't add services or locations yet, and she must actually <b>serve someone</b> to prove she can do it well.",fact:"Conditional = the first license. <b>6 months</b> each, <b>12 months</b> max combined."},
+{ch:"Ch 10 · A citation",t:"On the conditional inspection, one thing is cited. Amara owes a <b>Corrective Action Plan (CAP)</b>.",fact:"CAP due in <b>15 business days</b>. It must state: what you'll fix · by when · who's responsible (170.C)."},
+{ch:"Ch 10 · Submitting the CAP",t:"She writes it in CONNECT, using staff <b>titles, not names</b> (HIPAA), and submits. The status flips to <b>Returned</b>.",fact:"'Returned' = it's <b>with the Office of Licensing</b>, not back to you. (Save ≠ Submit.)"},
+{ch:"Ch 11 · Staying safe",t:"Now serving people, Amara reports serious incidents and protects rights. A fall that sends someone to the ER? Report it. An abuse allegation? Report it.",fact:"Level II & III incidents → <b>CHRIS within 24 hours</b>. Abuse/neglect → OHR, also within <b>24 hours</b>."},
+{ch:"Ch 12 · Full license 🎉",t:"After she shows full compliance and has genuinely served individuals, Amara moves off conditional — first to an <b>annual</b> license, and eventually a <b>triennial</b> one.",fact:"Annual = 1 year · Triennial = 3 years, earned through sustained compliance."},
+];
+let stIdx=0;
+function startStory(){stIdx=0;show('story');renderStory();}
+function renderStory(){const b=STORY[stIdx];$('sbar').style.width=Math.round(stIdx/STORY.length*100)+'%';
+  $('storych').textContent=b.ch;$('storytext').innerHTML=b.t;$('storylock').innerHTML='<b>🔑 Locked in:</b> '+b.fact;
+  $('sprev').style.display=stIdx?'inline-block':'none';
+  $('snext').textContent=stIdx+1<STORY.length?'Next →':'The end 🎉';}
+function storyNext(){stopAudio();if(stIdx+1<STORY.length){stIdx++;renderStory();}else{S.xp+=15;save();setStats();bigConfetti();goHome();}}
+function storyPrev(){stopAudio();if(stIdx>0){stIdx--;renderStory();}}
+function storyRead(){const b=STORY[stIdx];speak((b.t+'. Key fact: '+b.fact).replace(/<[^>]+>/g,' '));}
+
+/* ---------- VERSUS (confusable pairs, side by side) ---------- */
+const VERSUS=[
+{title:"Closure vs Denial",l:{h:"Closure",pts:["Missed a deadline","Administrative","You CAN reapply"]},r:{h:"Denial",pts:["False/misleading info","No valid cert of occupancy","Improper co-location"]},key:"Deadline = <b>close</b> · Dishonest = <b>deny</b>."},
+{title:"Level II vs Level III incident",l:{h:"Level II",pts:["Serious injury, ER visit","Missing person","Unplanned admission","Choking w/ physical intervention","Decubitus / bowel obstruction / aspiration pneumonia"]},r:{h:"Level III",pts:["Any death","Sexual assault","Suicide attempt w/ hospital admission","Counts even OFF-premises"]},key:"Both → CHRIS in <b>24h</b>. III = the worst three: Death, Sexual assault, Suicide-with-admission."},
+{title:"CRC vs CSU",l:{h:"CRC (23-hour)",pts:["Up to 23:59","Center-based","Recliners, not beds","Observe & assess"]},r:{h:"CSU (residential)",pts:["Short-term residential","≤ 16 beds","Typically 3–5 days"]},key:"Over <b>16 beds</b> = federal IMD (no Medicaid ages 21–64)."},
+{title:"Priority 1 vs Priority 2",l:{h:"Priority 1 (green)",pts:["Essential, big unmet need","Pulled in 5–10 business days"]},r:{h:"Priority 2 (blue)",pts:["Benefits from development","Pulled in 21 business days"]},key:"“1 → ~10, 2 → 21.” Non-priority = a year+."},
+{title:"The three different 90s",l:{h:"90 = money",pts:["Evidence of 90 days of operating expenses","Bank statement < 90 days old"]},r:{h:"90 = deadlines",pts:["Rejection response window: 90 days","Non-priority revision: 90 calendar days"]},key:"Don't mix them: 90-day <b>cash</b> vs 90-day <b>deadlines</b>."},
+{title:"Conditional vs Annual/Triennial",l:{h:"Conditional",pts:["The FIRST license","6 mo each · 12 mo max","No adding services/locations","Must serve to prove compliance"]},r:{h:"Annual / Triennial",pts:["Full compliance shown","Annual = 1 year","Triennial = 3 years"]},key:"Conditional is the starting gate; annual/triennial are earned."},
+{title:"Policy Review vs Licensing Specialist",l:{h:"Policy Review Specialist",pts:["Reviews compliance FIRST","Sends deficiency letters"]},r:{h:"Licensing Specialist",pts:["Assigned AFTER revisions accepted","Runs the on-site inspection"]},key:"Paper first (Policy), people second (Licensing)."},
+{title:"Background checks: Private vs Children's",l:{h:"Private provider",pts:["Direct care + their supervisors","Fingerprints ≤ 15 business days","Can start while pending*"]},r:{h:"Children's facility",pts:["EVERYONE: employees, volunteers, contractors","Results required BEFORE working"]},key:"Kids = everyone + results first; adults = direct care + supervisors."},
+{title:"105 vs 46 vs 115",l:{h:"12VAC35-105 / -46",pts:["105 = general regs (most services)","46 = children's residential"]},r:{h:"12VAC35-115",pts:["Human Rights Regulations","Enforced by the Office of Human Rights"]},key:"105 everything · 46 kids · 115 rights."},
+{title:"CMS vs DMAS vs DBHDS",l:{h:"CMS / DMAS",pts:["CMS = federal funder & oversight","DMAS = state Medicaid $ + participation agreement"]},r:{h:"DBHDS",pts:["Day-to-day waiver operations","Licenses many providers"]},key:"DMAS = <b>dollars</b>; DBHDS = day-to-day + licensing."},
+{title:"CAP status: Returned vs Issued",l:{h:"Returned",pts:["You submitted it","It's WITH the Office of Licensing","You can't view it"]},r:{h:"Issued",pts:["Needs your response","Also the status of a re-issued CAP"]},key:"“Returned = their turn.” Save ≠ Submit."},
+];
+let vIdx=0;
+function startVersus(){vIdx=0;show('versus');renderVs();}
+function renderVs(){const p=VERSUS[vIdx];$('vbar').style.width=Math.round(vIdx/VERSUS.length*100)+'%';
+  $('vtag').textContent='Compare '+(vIdx+1)+' / '+VERSUS.length;$('vtitle').textContent=p.title;
+  $('vsgrid').innerHTML='<div class="col"><h3>'+p.l.h+'</h3><ul>'+p.l.pts.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'+
+    '<div class="mid">vs</div>'+
+    '<div class="col r"><h3>'+p.r.h+'</h3><ul>'+p.r.pts.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>';
+  $('vkey').innerHTML='🎯 '+p.key;
+  $('vnext').textContent=vIdx+1<VERSUS.length?'Next →':'Done →';}
+function vsNext(){stopAudio();if(vIdx+1<VERSUS.length){vIdx++;renderVs();}else{S.xp+=10;save();setStats();goHome();}}
+function vsPrev(){stopAudio();if(vIdx>0){vIdx--;renderVs();}}
+function vsRead(){const p=VERSUS[vIdx];speak((p.title+'. '+p.l.h+': '+p.l.pts.join(', ')+'. Versus '+p.r.h+': '+p.r.pts.join(', ')+'. Key: '+p.key).replace(/<[^>]+>/g,' '));}
+
+/* ---------- PROCESS MAP ---------- */
+const MAP=[
+{t:"Train & pass the exam",d:"16 modules in TRAIN + the Comprehensive Exam at 85% — done BEFORE you apply (Priority 1 & 2)."},
+{t:"Pick your service",d:"Check the Prioritization List. Priority 1 (green, 5–10 biz days) · Priority 2 (blue, 21 biz days) · Non-priority (a year+)."},
+{t:"Gather the 8 documents",d:"Service description · SCC cert · org chart · 90-day financials · 12-month budget · staffing plan · position descriptions · policies & procedures."},
+{t:"Build it in CONNECT",d:"The online portal (since 2021). Pick your service carefully — it's locked once you submit."},
+{t:"Submit → admin review",d:"Complete = accepted onto the Waitlist + a welcome letter. Incomplete = rejected with a list to fix (respond within 90 days)."},
+{t:"Background checks",d:"Fingerprints within 15 business days of hire. You can't serve anyone until checks are requested for direct care staff + supervisors."},
+{t:"Policy review",d:"A Policy Review Specialist checks compliance and sends deficiency letters. Fix within 30 days (priority) or 90 days (non-priority)."},
+{t:"Assignment + on-site inspection",d:"For residential, CRC, and MAT: a Licensing Specialist inspects the physical environment (65–80°F air, 100–120°F water) before the license issues."},
+{t:"Conditional license",d:"Your FIRST license. 6 months each, 12 months max. No adding services/locations. You must actually serve someone to prove compliance."},
+{t:"Inspection → CAP",d:"Cited on the conditional inspection? Submit a Corrective Action Plan within 15 business days: what you'll fix · by when · who's responsible."},
+{t:"Annual license",d:"Earned by showing full compliance AND having served individuals. Good for 1 year."},
+{t:"Triennial license 🎉",d:"Sustained compliance over time earns a 3-year license."},
+];
+function startMap(){const tl=$('tl');tl.innerHTML='';MAP.forEach((s,i)=>{const d=document.createElement('div');d.className='tlnode';
+  d.innerHTML='<div class="tlnum">'+(i+1)+'</div><div class="tlbody"><b>'+s.t+'</b><div class="tldetail">'+s.d+'</div></div>';
+  d.onclick=()=>d.classList.toggle('open');tl.appendChild(d);});show('map');}
+
+/* ---------- LISTEN MODE ---------- */
+let lIdx=0, lPlaying=false, lScript=[];
+function startListen(){lScript=FLASH.map(c=>c[0]+'. '+c[1]+'. '+c[2].replace(/^🧠\s*/,'Memory tip: '));
+  lIdx=0;lPlaying=false;$('lplay').textContent='▶ Play';show('listen');renderListen();}
+function renderListen(){$('lbar').style.width=Math.round(lIdx/lScript.length*100)+'%';$('ltag').textContent='Listen '+(lIdx+1)+' / '+lScript.length;
+  $('lbig').textContent=lScript[lIdx].replace(/<[^>]+>/g,' ');}
+function listenToggle(){if(lPlaying){lPlaying=false;$('lplay').textContent='▶ Play';try{speechSynthesis.cancel();}catch(e){}}else{lPlaying=true;$('lplay').textContent='⏸ Pause';playListen();}}
+function playListen(){renderListen();speak(lScript[lIdx].replace(/<[^>]+>/g,' '),()=>{if(lPlaying){if(lIdx+1<lScript.length){lIdx++;playListen();}else{lPlaying=false;$('lplay').textContent='▶ Play';}}});}
+function listenNext(){lIdx=(lIdx+1)%lScript.length;if(lPlaying){playListen();}else{renderListen();}}
+
+/* ---------- GLOSSARY + auto-expand every acronym (assume zero prior knowledge) ---------- */
+const GLOSSARY=[
+ {a:"DBHDS",f:"Department of Behavioral Health and Developmental Services",p:"department of behavioral",d:"The Virginia state agency that licenses providers."},
+ {a:"OL",f:"Office of Licensing",p:"office of licensing",d:"The team inside DBHDS that issues licenses and inspects providers."},
+ {a:"CONNECT",f:"the online licensing system",p:"online licensing system",d:"The web portal where you apply and manage everything."},
+ {a:"TRAIN",f:"the online learning platform",p:"online learning platform",d:"Where the 16 training modules live."},
+ {a:"DD",f:"developmental disability",p:"developmental disab",d:"A disability beginning before age 22 (e.g., intellectual disability, autism)."},
+ {a:"MAC",f:"Main Authorized Contact",p:"main authorized",d:"The main person on the account who manages CONNECT."},
+ {a:"SCC",f:"State Corporation Commission",p:"state corporation",d:"Virginia's business registry; proves your company is legally registered."},
+ {a:"CAP",f:"Corrective Action Plan",p:"corrective action plan",d:"Your written promise to fix something you were cited for."},
+ {a:"CHRIS",f:"Computerized Human Rights Information System",p:"computerized human rights",d:"The system where you report deaths and serious incidents."},
+ {a:"DELTA",f:"the secure sign-in portal for CHRIS",p:"secure sign-in portal",d:"The login gate you pass through to reach CHRIS."},
+ {a:"HIPAA",f:"Health Insurance Portability and Accountability Act",p:"health insurance portability",d:"The medical-privacy law — never use people's names in reports."},
+ {a:"OHR",f:"Office of Human Rights",p:"office of human rights",d:"The office that protects the rights of people receiving services."},
+ {a:"ANE",f:"Abuse, Neglect, or Exploitation",p:"abuse, neglect",d:"The category of harm you must report within 24 hours."},
+ {a:"RCA",f:"Root Cause Analysis",p:"root cause",d:"Investigating WHY an incident happened; due within 30 days."},
+ {a:"QI",f:"Quality Improvement",p:"quality improvement",d:"Your ongoing program for monitoring and improving care."},
+ {a:"HCBS",f:"Home and Community-Based Services",p:"home and community",d:"Medicaid services delivered in the community, not an institution."},
+ {a:"CMS",f:"Centers for Medicare & Medicaid Services",p:"centers for medicare",d:"The FEDERAL agency that funds and oversees Medicaid."},
+ {a:"DMAS",f:"Department of Medical Assistance Services",p:"department of medical assistance",d:"Virginia's Medicaid agency — 'the money.'"},
+ {a:"CL",f:"Community Living waiver",p:"community living",d:"One of Virginia's three developmental-disability Medicaid waivers."},
+ {a:"FIS",f:"Family and Individual Supports waiver",p:"family and individual",d:"One of Virginia's three developmental-disability Medicaid waivers."},
+ {a:"BI",f:"Building Independence waiver",p:"building independence",d:"One of Virginia's three developmental-disability Medicaid waivers."},
+ {a:"CRC",f:"Crisis Receiving Center",p:"crisis receiving",d:"A 23-hour crisis program with recliners, not beds."},
+ {a:"CSU",f:"Crisis Stabilization Unit",p:"crisis stabilization unit",d:"A short-term residential crisis program, 16 beds max."},
+ {a:"CITAC",f:"Crisis Intervention Team Assessment Center",p:"crisis intervention team",d:"A crisis site tied to law enforcement (NOT licensed by DBHDS)."},
+ {a:"REACH",f:"Regional Education Assessment Crisis Services Habilitation",p:"regional education assessment",d:"Virginia's crisis system for people with developmental disabilities."},
+ {a:"MAT",f:"Medication-Assisted Treatment",p:"medication-assisted",d:"Opioid-treatment services that use medication."},
+ {a:"OTP",f:"Opioid Treatment Program",p:"opioid treatment",d:"A licensed program that provides opioid treatment."},
+ {a:"IMD",f:"Institution for Mental Diseases",p:"institution for mental",d:"A federal label; over 16 beds blocks Medicaid for ages 21–64."},
+ {a:"ER",f:"emergency room",p:"emergency room",d:"A hospital emergency room; an ER visit is a Level II incident."},
+ {a:"P1",f:"Priority 1",p:"priority 1",d:"Top-priority service, pulled in 5–10 business days."},
+ {a:"P2",f:"Priority 2",p:"priority 2",d:"Second-priority service, pulled in 21 business days."},
+];
+function expandAcr(text){
+  if(typeof text!=='string')return text;
+  const low=text.toLowerCase();
+  for(const g of GLOSSARY){
+    if(low.indexOf(g.p)!==-1)continue;
+    const re=new RegExp('\\b'+g.a+'(s)?\\b');
+    if(re.test(text)){ text=text.replace(re,(m,s)=>g.a+(s||'')+' ('+g.f+')'); }
+  }
+  return text;
+}
+function expandAllData(){
+  BANK.forEach(q=>{q.q=expandAcr(q.q);q.o=q.o.map(expandAcr);q.e=expandAcr(q.e);q.mn=expandAcr(q.mn);});
+  for(let i=0;i<FLASH.length;i++){FLASH[i]=FLASH[i].map(expandAcr);}
+  REELS.forEach(r=>r.beats.forEach(b=>{b.b=expandAcr(b.b);if(b.s)b.s=expandAcr(b.s);}));
+  STORY.forEach(b=>{b.t=expandAcr(b.t);b.fact=expandAcr(b.fact);});
+  VERSUS.forEach(p=>{p.title=expandAcr(p.title);p.l.h=expandAcr(p.l.h);p.r.h=expandAcr(p.r.h);p.l.pts=p.l.pts.map(expandAcr);p.r.pts=p.r.pts.map(expandAcr);p.key=expandAcr(p.key);});
+  MAP.forEach(s=>{s.t=expandAcr(s.t);s.d=expandAcr(s.d);});
+}
+expandAllData();
+function startGlossary(){const el=$('gloss');el.innerHTML='';
+  GLOSSARY.slice().sort((a,b)=>a.a.localeCompare(b.a)).forEach(g=>{const d=document.createElement('div');d.className='gitem';
+   d.innerHTML='<b>'+g.a+'</b> &mdash; <span class="gf">'+g.f+'</span><div class="gd">'+g.d+'</div>';el.appendChild(d);});
+  show('glossary');}
+
+/* ================= STORY MODE — TWO-HOST PODCAST ================= */
+let voiceA=null, voiceB=null;
+function pickVoices(){try{const vs=speechSynthesis.getVoices();const en=vs.filter(v=>/^en/i.test(v.lang));
+  const fem=en.find(v=>/(samantha|victoria|karen|moira|tessa|fiona|female|zira|aria|jenny|allison|ava|susan|serena)/i.test(v.name));
+  const mal=en.find(v=>/(daniel|alex|fred|tom|aaron|rishi|guy|david|george|arthur|male|oliver|reed|nathan)/i.test(v.name)&&v!==fem);
+  voiceA=fem||en[0]||vs[0]||null; voiceB=mal||en.find(v=>v!==voiceA)||en[1]||voiceA;}catch(e){}}
+if('speechSynthesis' in window){pickVoices();try{speechSynthesis.onvoiceschanged=function(){pickVoice();pickVoices();};}catch(e){}}
+const hasTTS=('speechSynthesis' in window);
+
+const EPISODE={ title:"So You Want to Get Licensed", hosts:{M:"Maya",T:"Theo"}, chapters:[
+ {title:"The Dream", fact:"Since Nov 7, 2025, Priority 1 & 2 applicants must finish the 16 modules and pass the exam at 85% before they can apply.", lines:[
+  {w:"M",t:"Okay Theo, real talk. Someone wakes up tomorrow and says, 'I want to open a group home for adults with developmental disabilities.' Where do they even start?"},
+  {w:"T",t:"You'd think step one is paperwork. It's not. Step one is a classroom."},
+  {w:"M",t:"A classroom? Come on."},
+  {w:"T",t:"Before you can even apply, you complete an orientation — sixteen modules — and you pass an exam with an eighty-five percent."},
+  {w:"M",t:"Wait. You can't even apply until you pass a test?"},
+  {w:"T",t:"Not for the high-priority services. That's the gate. And honestly, it's there so people know exactly what they're walking into."},
+ ]},
+ {title:"The Referee", fact:"The Office of Licensing issues, monitors, investigates, and enforces. Most services fall under the general regulations (12VAC35-105).", lines:[
+  {w:"M",t:"So who's actually in charge here? Who hands you the license?"},
+  {w:"T",t:"The Office of Licensing. Think of them as the referee. They issue your license, they monitor you, they investigate, and they enforce the rules."},
+  {w:"M",t:"Referee. I like that."},
+  {w:"T",t:"And here's a mental model that'll save you a headache: most services live under one big rulebook. Children's homes have their own. Human rights has its own."},
+  {w:"M",t:"One big rulebook, plus a couple of special ones. Got it."},
+ ]},
+ {title:"What a Group Home Really Is", fact:"Adult group home = 24-hour supervision, 8 or fewer residents.", lines:[
+  {w:"M",t:"When you say 'group home,' what does that actually look like day to day?"},
+  {w:"T",t:"For adults with developmental disabilities, it's round-the-clock supervision — but for a small number of people. Eight or fewer. A real home, not an institution."},
+  {w:"M",t:"That 'not an institution' line keeps coming up."},
+  {w:"T",t:"Because it's the whole philosophy. Ordinary life. Small settings. Real choices. Everything else is just details protecting that."},
+ ]},
+ {title:"The Homework Before the Homework", fact:"Subscribe to the Office of Licensing email list, or a missed rule change can get your application rejected.", lines:[
+  {w:"M",t:"Alright, our person passed the exam. Now the paperwork?"},
+  {w:"T",t:"Almost. First, a move most people skip and later regret. Read the regulations, and sign up for the email list."},
+  {w:"M",t:"The email list? That feels kind of minor."},
+  {w:"T",t:"It's the opposite of minor. If a rule changes and you didn't get the memo, your application can be rejected for something you never even knew about."},
+  {w:"M",t:"So it's basically free insurance."},
+  {w:"T",t:"Free insurance. Take it."},
+ ]},
+ {title:"The Eight Documents", fact:"8 documents are required for every service — including proof of 90 days of operating expenses and a 12-month budget.", lines:[
+  {w:"M",t:"Okay. Now the paperwork?"},
+  {w:"T",t:"Now the paperwork. Every service needs the same eight documents. The one that trips people up is proof you can cover ninety days of expenses, plus a full year's budget."},
+  {w:"M",t:"So they want to know you won't run out of money in month two."},
+  {w:"T",t:"Exactly. And think about why. If you fold in a month, it's the people you were serving who get hurt. The money rule is really a safety rule."},
+ ]},
+ {title:"Into the Portal", fact:"You apply in CONNECT, the online licensing system. Your service choice is locked once you submit.", lines:[
+  {w:"M",t:"Where does all of this actually go?"},
+  {w:"T",t:"An online system called Connect. You build the whole application in there. But — one warning I give everybody."},
+  {w:"M",t:"Uh oh."},
+  {w:"T",t:"When you pick your service, choose carefully. The second you hit submit, that choice is locked. No do-overs."},
+  {w:"M",t:"So measure twice, submit once."},
+ ]},
+ {title:"On the Waitlist", fact:"You may not serve anyone until background & registry checks are requested for direct-care staff and their supervisors.", lines:[
+  {w:"M",t:"You hit submit. Then you just... wait?"},
+  {w:"T",t:"If it's complete, you land on the waitlist and you get a welcome letter. And that letter basically says: start your background checks now."},
+  {w:"M",t:"Why the rush?"},
+  {w:"T",t:"Because you cannot serve a single person until you've requested background and registry checks for your direct-care staff and their supervisors. Start early, or you'll be stuck waiting."},
+ ]},
+ {title:"The Six-Month Clock", fact:"Fingerprints within 15 business days of hire; the eligibility letter disappears from the system after 6 months — print it.", lines:[
+  {w:"M",t:"Background checks. Any hidden traps?"},
+  {w:"T",t:"One really bites people. When a staff member's eligibility letter comes back, print it immediately. It vanishes from the system after six months."},
+  {w:"M",t:"And if you miss that window?"},
+  {w:"T",t:"You redo the whole check. Pay the fee again. So the habit is simple: it comes in, you print it, you file it. Done."},
+ ]},
+ {title:"Getting Notes Back", fact:"Deficiency fixes: Priority 30 calendar days, Non-priority 90. Miss the deadline and the application closes.", lines:[
+  {w:"M",t:"Does a real person actually read all your policies?"},
+  {w:"T",t:"Line by line. A Policy Review Specialist. And if something's off, they send back what's called a deficiency letter."},
+  {w:"M",t:"'Deficiency letter' sounds scary."},
+  {w:"T",t:"It just means 'fix these.' But there's a clock — thirty days if you're priority. Miss it, and the whole application closes. So you answer fast."},
+ ]},
+ {title:"Someone Comes to Look", fact:"Physical environment: air kept 65–80°F, hot water 100–120°F.", lines:[
+  {w:"M",t:"Is there ever a real person walking through the actual house?"},
+  {w:"T",t:"For a residential program? Absolutely. Before any license, a Licensing Specialist inspects the physical space."},
+  {w:"M",t:"What are they even checking for?"},
+  {w:"T",t:"Little things that are secretly big. The air stays between sixty-five and eighty degrees. The hot water stays between a hundred and one-twenty, so nobody gets scalded. The kind of safety you'd want for your own family."},
+ ]},
+ {title:"The Learner's Permit", fact:"The conditional license is your first — 6 months each, 12 max. You must serve people to prove compliance.", lines:[
+  {w:"M",t:"So they hand you the license and you're off to the races?"},
+  {w:"T",t:"Sort of. Your very first license is conditional. Think of it like a learner's permit. Six months, and you can't add services or locations yet."},
+  {w:"M",t:"What are they waiting to see?"},
+  {w:"T",t:"That you can actually do it. You have to serve real people, and serve them well, before they'll trust you with the full license."},
+  {w:"M",t:"You have to prove it, not just promise it."},
+ ]},
+ {title:"Getting Cited Isn't the End", fact:"A Corrective Action Plan (CAP) is due in 15 business days. 'Returned' status means it's WITH the Office of Licensing, not back to you.", lines:[
+  {w:"M",t:"What happens if they find a problem once you're up and running?"},
+  {w:"T",t:"They cite it, and you write a Corrective Action Plan. A cap, people call it. It's basically a promise: here's what I'll fix, here's by when, and here's who's responsible."},
+  {w:"M",t:"So a citation isn't a death sentence."},
+  {w:"T",t:"Not even close. How you respond is the whole game. You submit the plan in the portal — and here's the part that trips everyone up — the status flips to 'Returned.'"},
+  {w:"M",t:"Returned? Like they sent it back to me?"},
+  {w:"T",t:"That's the trap! Returned means you returned it to them. It's with the Office of Licensing now. It's in their court, not yours."},
+ ]},
+ {title:"When Something Goes Wrong", fact:"Serious incidents → report within 24 hours of discovery. Abuse or neglect → Office of Human Rights, also within 24 hours.", lines:[
+  {w:"M",t:"Heavier question. What about emergencies? Someone actually gets hurt?"},
+  {w:"T",t:"Then reporting becomes sacred. A serious incident — say, an emergency-room visit — gets reported within twenty-four hours."},
+  {w:"M",t:"Twenty-four hours from when it happens?"},
+  {w:"T",t:"From when you discover it. And abuse or neglect? Also twenty-four hours, straight to the Office of Human Rights. That speed is exactly how the whole system keeps people safe."},
+ ]},
+ {title:"Graduation", fact:"Full compliance + genuinely serving people → an annual license (1 year), then eventually a triennial one (3 years).", lines:[
+  {w:"M",t:"So how does the story end? Do they ever get off the training wheels?"},
+  {w:"T",t:"They do. Show full compliance, actually serve people well, and the conditional becomes a real license. First an annual — one year — then eventually a three-year."},
+  {w:"M",t:"From 'I have an idea' to trusted provider."},
+  {w:"T",t:"That's the arc. And every rule we just walked through? It was never really about paperwork. It was about the person who gets to live a good life, because somebody did this right."},
+  {w:"M",t:"Okay. That actually gave me chills. Roll the credits."},
+ ]},
+]};
+let POD=[], chapterStart=[], podRenderedCi=-1, pIdx=0, pPlaying=false, pRate=1, podGen=0, podTimer=null;
+function buildPod(){POD=[];chapterStart=[];EPISODE.chapters.forEach((c,ci)=>{chapterStart[ci]=POD.length;c.lines.forEach((l,li)=>POD.push({w:l.w,t:l.t,ci,li}));});}
+function startStory(){ if(!POD.length)buildPod(); pIdx=0;pPlaying=false;pRate=1;podRenderedCi=-1;
+  $('podspeed').textContent='1×';$('podplay').textContent='▶';$('eq').classList.remove('on');
+  $('podchips').innerHTML=EPISODE.chapters.map((c,i)=>'<button class="chip" onclick="jumpChapter('+i+')">'+(i+1)+'</button>').join('');
+  var sa=$('studioAudio'); if(sa&&!sa.dataset.init){sa.dataset.init='1';sa.src='podcast.mp3';
+    sa.onloadedmetadata=function(){$('studiobtn').style.display='inline-flex';};
+    sa.onerror=function(){$('studiobtn').style.display='none';};
+    sa.onended=function(){$('studiobtn').textContent='🎧';};}
+  show('story'); renderPod(); }
+function toggleStudio(){ var sa=$('studioAudio'); if(!sa)return; podPause();
+  if(sa.paused){ try{sa.play();}catch(e){} $('studiobtn').textContent='🎧⏸'; }
+  else { sa.pause(); $('studiobtn').textContent='🎧'; } }
+function renderPod(){ if(podQuizActive){var _pq=$('podquiz');if(_pq)_pq.style.display='none';podQuizActive=false;}
+  const l=POD[pIdx], ci=l.ci, ch=EPISODE.chapters[ci];
+  $('podep').textContent='Ch '+(ci+1)+'/'+EPISODE.chapters.length+' · '+ch.title;
+  var chips=$('podchips').children; for(var i=0;i<chips.length;i++)chips[i].classList.toggle('on',i===ci);
+  const tr=$('transcript');
+  if(podRenderedCi!==ci){ podRenderedCi=ci;
+    tr.innerHTML=ch.lines.map((ln,j)=>{const gi=chapterStart[ci]+j;return '<div class="bub '+ln.w+'" data-gi="'+gi+'" onclick="jumpLine('+gi+')"><span class="who">'+EPISODE.hosts[ln.w]+'</span>'+ln.t+'</div>';}).join('');}
+  var bubs=tr.children; for(var k=0;k<bubs.length;k++)bubs[k].classList.toggle('active',+bubs[k].dataset.gi===pIdx);
+  var act=tr.querySelector('.bub.active'); if(act)act.scrollIntoView({block:'nearest',behavior:'smooth'});
+  $('storylock').innerHTML='<b>🔑 Key takeaway:</b> '+ch.fact;
+  $('scrubfill').style.width=Math.round((pIdx+1)/POD.length*100)+'%';
+  $('podline').textContent=(pIdx+1)+' / '+POD.length; }
+function togglePod(){ pPlaying?podPause():podPlay(); }
+function podPlay(){ var sa=$('studioAudio'); if(sa)sa.pause(); var sb=$('studiobtn'); if(sb)sb.textContent='🎧'; pPlaying=true;$('podplay').textContent='⏸';$('eq').classList.add('on');speakPod(); }
+function podPause(){ pPlaying=false; var p=$('podplay'); if(p)p.textContent='▶'; var e=$('eq'); if(e)e.classList.remove('on'); clearTimeout(podTimer); try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){} }
+function speakPod(){ clearTimeout(podTimer); renderPod();
+  if(!hasTTS){ if(pPlaying)podTimer=setTimeout(advancePod,Math.max(1700,POD[pIdx].t.length*42)); return; }
+  const l=POD[pIdx], gen=++podGen, isM=l.w==='M';
+  const u=new SpeechSynthesisUtterance(l.t);
+  if(isM&&voiceA)u.voice=voiceA; if(!isM&&voiceB)u.voice=voiceB;
+  u.rate=pRate*(isM?1.0:0.98); u.pitch=isM?1.12:0.9;
+  u.onend=()=>{ if(gen!==podGen||!pPlaying)return; podTimer=setTimeout(advancePod,220); };
+  u.onerror=()=>{ if(gen!==podGen||!pPlaying)return; podTimer=setTimeout(advancePod,220); };
+  try{speechSynthesis.cancel();}catch(e){} try{speechSynthesis.speak(u);}catch(e){ if(pPlaying)podTimer=setTimeout(advancePod,1600); } }
+function advancePod(){ if(!pPlaying)return;
+  const ci=POD[pIdx].ci, atEnd=(pIdx>=POD.length-1)||(POD[pIdx+1].ci!==ci);
+  if(atEnd && showChapterQuiz(ci))return;
+  if(pIdx>=POD.length-1){podFinish();return;}
+  pIdx++; speakPod(); }
+function nextPodBtn(){ if(pIdx<POD.length-1)pIdx++; if(pPlaying)speakPod(); else renderPod(); }
+function prevPod(){ if(pIdx>0)pIdx--; if(pPlaying)speakPod(); else renderPod(); }
+function jumpChapter(ci){ pIdx=chapterStart[ci]; if(pPlaying)speakPod(); else renderPod(); }
+function jumpLine(gi){ pIdx=gi; if(pPlaying)speakPod(); else renderPod(); }
+function scrubClick(e){ const r=e.currentTarget.getBoundingClientRect(); const pct=(e.clientX-r.left)/r.width; pIdx=Math.min(POD.length-1,Math.max(0,Math.round(pct*POD.length)-0)); if(pPlaying)speakPod(); else renderPod(); }
+function cycleSpeed(){ const r=[1,1.25,1.5,0.85]; pRate=r[(r.indexOf(pRate)+1)%r.length]; $('podspeed').textContent=pRate+'×'; if(pPlaying)speakPod(); }
+function podFinish(){ pPlaying=false;$('podplay').textContent='▶';$('eq').classList.remove('on'); try{bigConfetti();}catch(e){} }
+
+/* one quick check per chapter — explanations are short and connect back to the story */
+let podQuizActive=false; const podQuizShown=new Set();
+const PODQUIZ=[
+ {q:"Before you can even apply for a priority service, you must first…",o:["Submit the 8 documents","Finish the 16 modules and pass the exam at 85%","Get a business license","Hire your staff"],a:1,e:"Training comes before paperwork — it's the gate. Amara hits the classroom before the application."},
+ {q:"The Office of Licensing does all of these EXCEPT…",o:["Issue licenses","Monitor & investigate","Deliver the care itself","Enforce action"],a:2,e:"They're the referee, not a player — they regulate care, they don't provide it."},
+ {q:"An adult group home provides…",o:["24-hour supervision for 8 or fewer people","Care for up to 30","Daytime services only","Hospital care"],a:0,e:"Small and round-the-clock — a real home, not an institution. That's the whole idea."},
+ {q:"Why does Theo say to join the email list?",o:["It's legally required","So a missed rule change can't get you rejected","To get the exam early","To skip a module"],a:1,e:"If a rule changes and you didn't hear, you can be rejected for it. It's free insurance."},
+ {q:"Your 'evidence of financial resources' must cover…",o:["30 days","One week","90 days of operating expenses","Five years"],a:2,e:"90 days of expenses — so you won't fold in month two and leave people stranded. The money rule is a safety rule."},
+ {q:"Once you submit in CONNECT, your service choice is…",o:["Editable anytime","Locked","Sent to a committee","Auto-approved"],a:1,e:"Locked the second you submit — that's why Theo says measure twice, submit once."},
+ {q:"You may not serve anyone until…",o:["The license is framed","Background & registry checks are requested for staff + supervisors","You hire a nurse","The website launches"],a:1,e:"No checks requested = no one served. That's why the welcome letter says start them now."},
+ {q:"The eligibility letter disappears from the system after…",o:["30 days","6 months","2 years","Never"],a:1,e:"6 months, then it's gone — so you print it the moment it lands, or redo the whole check."},
+ {q:"For a priority application, you must fix a deficiency within…",o:["10 days","30 calendar days","90 calendar days","A year"],a:1,e:"Priority = 30 days (non-priority gets 90). Miss the clock and the application closes."},
+ {q:"Hot water for individuals is kept between…",o:["50–70°F","100–120°F","130–150°F","There's no rule"],a:1,e:"100–120°F so no one gets scalded (air stays 65–80°F). Small numbers, big safety."},
+ {q:"Your first — conditional — license lasts…",o:["6 months (12 max)","3 years","1 month","Forever"],a:0,e:"It's a learner's permit: 6 months each, 12 max, and you must actually serve people to prove you can."},
+ {q:"When your plan's status flips to 'Returned,' it means…",o:["It came back to you to redo","It's now WITH the Office of Licensing","It was denied","It was deleted"],a:1,e:"The trap! 'Returned' = you returned it to them — it's in their court now, not yours."},
+ {q:"A serious incident must be reported within…",o:["1 hour","24 hours of discovery","72 hours","A week"],a:1,e:"24 hours from when you discover it — and abuse or neglect is also 24 hours, to the Office of Human Rights."},
+ {q:"After the conditional license, the next step up is…",o:["A permanent license right away","An annual (1 year), then a triennial (3 years)","A 10-year license","No further license"],a:1,e:"Prove it over time: annual first, then triennial. From 'I have an idea' to trusted provider."},
+];
+function showChapterQuiz(ci){ if(ci>=PODQUIZ.length||podQuizShown.has(ci))return false;
+  const q=PODQUIZ[ci]; podQuizShown.add(ci); podQuizActive=true;
+  clearTimeout(podTimer); try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){} $('eq').classList.remove('on');
+  $('pqq').textContent=q.q; const fb=$('pqfb'); fb.style.display='none'; fb.innerHTML='';
+  $('pqcont').style.display='none'; $('pqskip').style.display='inline-block';
+  const wrap=$('pqopts'); wrap.innerHTML='';
+  q.o.forEach((opt,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="key">'+(i+1)+'</span><span>'+opt+'</span>';b.onclick=()=>podQuizAnswer(i,ci);wrap.appendChild(b);});
+  const panel=$('podquiz'); panel.style.display='block'; panel.scrollIntoView({behavior:'smooth',block:'center'}); return true; }
+function podQuizAnswer(i,ci){ const q=PODQUIZ[ci]; const els=$('pqopts').children;
+  for(let j=0;j<els.length;j++){els[j].disabled=true; if(j===q.a)els[j].classList.add('correct'); else if(j===i)els[j].classList.add('wrong'); else els[j].classList.add('dim');}
+  const ok=i===q.a; const fb=$('pqfb'); fb.style.display='block'; fb.className='pqfb '+(ok?'ok':'no');
+  fb.innerHTML=(ok?'<b>✅ Nailed it.</b> ':'<b>❌ Not quite — the answer is "'+q.o[q.a]+'."</b> ')+q.e;
+  if(ok){S.xp+=10;save();setStats();confetti();}
+  $('pqcont').style.display='inline-block'; $('pqskip').style.display='none'; }
+function podQuizSkip(){ podQuizFinishPanel(); }
+function podQuizContinue(){ podQuizFinishPanel(); }
+function podQuizFinishPanel(){ $('podquiz').style.display='none'; podQuizActive=false;
+  if(pIdx>=POD.length-1){podFinish();return;}
+  pIdx++; if(pPlaying){$('eq').classList.add('on');speakPod();} else renderPod(); }
 
 /* ---------- CONFETTI ---------- */
 const cv=$('fx'),ctx=cv.getContext('2d');let parts=[];
