@@ -111,9 +111,6 @@
   @keyframes rise{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
   @keyframes bounce{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
   /* Story / Versus / Map / Listen */
-  .chip2{display:inline-block;background:#2a3266;border:1px solid #3a4488;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:800;color:#cdd6ff;margin-bottom:10px}
-  .storytext{font-size:19px;line-height:1.55;font-weight:600;margin:6px 0 14px;animation:pop .3s ease}
-  .storytext b{color:#cfe0ff}
   .lockbox{background:rgba(61,220,151,.12);border:1px solid var(--good);border-radius:14px;padding:12px 14px;margin-top:2px;font-size:15px}
   .lockbox b{color:var(--good)}
   .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;margin:8px 0 4px;animation:pop .3s ease}
@@ -830,34 +827,6 @@ function stopAudio(){try{if('speechSynthesis' in window)speechSynthesis.cancel()
   if(typeof podPause==='function')podPause();
   var sa=$('studioAudio'); if(sa)sa.pause(); var sb=$('studiobtn'); if(sb)sb.textContent='🎧';}
 
-/* ---------- STORY MODE (one provider's journey through all 16 modules) ---------- */
-const STORY=[
-{ch:"Ch 1 · The idea",t:"Amara wants to open a <b>group home for adults with developmental disabilities</b>. Before she can even apply, she hits a gate: she must finish the <b>Initial Applicant Orientation</b> and pass the Comprehensive Exam.",fact:"Since Nov 7, 2025, Priority 1 & 2 applicants must complete the 16 modules and pass the exam at <b>85%</b> before applying."},
-{ch:"Ch 1 · Why the gate",t:"The training is required because her service is a <b>Priority service</b> — the kind DBHDS most wants done right.",fact:"Priority 1 & 2 services trigger the orientation + exam requirement."},
-{ch:"Ch 2 · Who regulates her",t:"She meets the <b>Office of Licensing</b> — the team that issues her license, then watches to make sure she keeps her promises. Her region is <b>Region 4 · Central (gray)</b>.",fact:"OL <b>issues, monitors, investigates, and enforces</b>. Her services live under the general regs, <b>12VAC35-105</b>."},
-{ch:"Ch 2 · Her service",t:"An adult DD group home means <b>24-hour supervision</b> for a small number of people — a real home, not an institution.",fact:"Adult group home = 24-hour supervision, <b>8 or fewer</b> residents. (Children's group home = up to 12.)"},
-{ch:"Ch 3 · Homework",t:"Before writing a single policy, Amara reads the regulations and <b>subscribes to the OL email list</b> — because if a rule changes and she misses it, her application can be rejected. She zeroes in on three regs.",fact:"<b>450</b> = training · <b>520</b> = risk · <b>620</b> = quality. Subscribe or risk a surprise rejection."},
-{ch:"Ch 4 · The paperwork",t:"She assembles the <b>8 documents every service needs</b> — including proof she can cover <b>90 days</b> of expenses and a 12-month budget. Her service is <b>Priority 1 (green)</b>, so it moves fast.",fact:"8 docs for every service. Priority 1 is pulled in <b>5–10 business days</b>."},
-{ch:"Ch 5 · Into CONNECT",t:"She builds the application in <b>CONNECT</b>, the online portal, choosing her service carefully — because <b>once she submits, that choice is locked</b>.",fact:"CONNECT (live since 2021). Service selection is <b>locked once submitted</b>."},
-{ch:"Ch 5 · Accepted",t:"Her application is complete, so it's accepted onto the <b>Waitlist</b> and she gets a <b>welcome letter</b> telling her to start background checks right away.",fact:"She may <b>not serve anyone</b> until background & registry checks are requested for all direct care staff and supervisors."},
-{ch:"Ch 6 · Background checks",t:"Amara sends staff to Fieldprint. Fingerprints go in within <b>15 business days</b> of hire, and she prints each <b>eligibility letter</b> the moment it appears.",fact:"Eligibility letters vanish from CONNECT after <b>6 months</b> — print and file them."},
-{ch:"Ch 7 · Policy review",t:"A <b>Policy Review Specialist</b> checks her policies against the regs and sends back one deficiency. Because she's priority, she has <b>30 calendar days</b> to fix it.",fact:"Deficiency revisions: Priority <b>30 days</b>, Non-priority <b>90 days</b>. Miss it → application closes."},
-{ch:"Ch 8 · The inspection",t:"Because it's <b>residential</b>, a Licensing Specialist visits to inspect the physical environment <b>before any license issues</b>.",fact:"Physical environment: air <b>65–80°F</b>, hot water <b>100–120°F</b>."},
-{ch:"Ch 9 · Conditional license",t:"Amara earns her <b>conditional license</b> — her very first. She can't add services or locations yet, and she must actually <b>serve someone</b> to prove she can do it well.",fact:"Conditional = the first license. <b>6 months</b> each, <b>12 months</b> max combined."},
-{ch:"Ch 10 · A citation",t:"On the conditional inspection, one thing is cited. Amara owes a <b>Corrective Action Plan (CAP)</b>.",fact:"CAP due in <b>15 business days</b>. It must state: what you'll fix · by when · who's responsible (170.C)."},
-{ch:"Ch 10 · Submitting the CAP",t:"She writes it in CONNECT, using staff <b>titles, not names</b> (HIPAA), and submits. The status flips to <b>Returned</b>.",fact:"'Returned' = it's <b>with the Office of Licensing</b>, not back to you. (Save ≠ Submit.)"},
-{ch:"Ch 11 · Staying safe",t:"Now serving people, Amara reports serious incidents and protects rights. A fall that sends someone to the ER? Report it. An abuse allegation? Report it.",fact:"Level II & III incidents → <b>CHRIS within 24 hours</b>. Abuse/neglect → OHR, also within <b>24 hours</b>."},
-{ch:"Ch 12 · Full license 🎉",t:"After she shows full compliance and has genuinely served individuals, Amara moves off conditional — first to an <b>annual</b> license, and eventually a <b>triennial</b> one.",fact:"Annual = 1 year · Triennial = 3 years, earned through sustained compliance."},
-];
-let stIdx=0;
-function startStory(){stIdx=0;show('story');renderStory();}
-function renderStory(){const b=STORY[stIdx];$('sbar').style.width=Math.round(stIdx/STORY.length*100)+'%';
-  $('storych').textContent=b.ch;$('storytext').innerHTML=b.t;$('storylock').innerHTML='<b>🔑 Locked in:</b> '+b.fact;
-  $('sprev').style.display=stIdx?'inline-block':'none';
-  $('snext').textContent=stIdx+1<STORY.length?'Next →':'The end 🎉';}
-function storyNext(){stopAudio();if(stIdx+1<STORY.length){stIdx++;renderStory();}else{S.xp+=15;save();setStats();bigConfetti();goHome();}}
-function storyPrev(){stopAudio();if(stIdx>0){stIdx--;renderStory();}}
-function storyRead(){const b=STORY[stIdx];speak((b.t+'. Key fact: '+b.fact).replace(/<[^>]+>/g,' '));}
 
 /* ---------- VERSUS (confusable pairs, side by side) ---------- */
 const VERSUS=[
@@ -963,7 +932,6 @@ function expandAllData(){
   BANK.forEach(q=>{q.q=expandAcr(q.q);q.o=q.o.map(expandAcr);q.e=expandAcr(q.e);q.mn=expandAcr(q.mn);});
   for(let i=0;i<FLASH.length;i++){FLASH[i]=FLASH[i].map(expandAcr);}
   REELS.forEach(r=>r.beats.forEach(b=>{b.b=expandAcr(b.b);if(b.s)b.s=expandAcr(b.s);}));
-  STORY.forEach(b=>{b.t=expandAcr(b.t);b.fact=expandAcr(b.fact);});
   VERSUS.forEach(p=>{p.title=expandAcr(p.title);p.l.h=expandAcr(p.l.h);p.r.h=expandAcr(p.r.h);p.l.pts=p.l.pts.map(expandAcr);p.r.pts=p.r.pts.map(expandAcr);p.key=expandAcr(p.key);});
   MAP.forEach(s=>{s.t=expandAcr(s.t);s.d=expandAcr(s.d);});
 }
