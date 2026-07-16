@@ -254,6 +254,7 @@
     <div class="row">
       <button class="btn ghost" onclick="goHome()">← Home</button>
       <div class="spacer"></div>
+      <button class="audiobtn" onclick="flashSpeak()" title="Read this card aloud">🔊</button>
       <button class="btn good" id="flip" onclick="flip()">Flip 🔄</button>
       <button class="btn primary" id="fnext" onclick="fNext()" style="display:none">Next →</button>
     </div>
@@ -759,7 +760,7 @@ function retryMissed(){if(!S.missed.length){goHome();return}queue=shuffle(S.miss
 
 /* ---------- FLASHCARDS ---------- */
 function startFlash(){show('flashm');renderFlash()}
-function renderFlash(){
+function renderFlash(){ stopClip();
   const c=curFlash[fIdx];$('fbar').style.width=Math.round(fIdx/curFlash.length*100)+'%';
   $('ftag').textContent=`Flashcard ${fIdx+1} / ${curFlash.length}`;
   $('fcard').textContent=c[0];$('ftext').textContent=c[1];$('ftip').textContent=c[2]||'';
@@ -786,7 +787,7 @@ function playReel(key){
   reelList = key==='__all'? REELS : REELS.filter(r=>r.key===key);
   // flatten with module boundaries
   reelSlides=[];
-  reelList.forEach(r=>r.beats.forEach((bt,i)=>reelSlides.push({...bt,_m:r,_first:i===0})));
+  reelList.forEach(r=>r.beats.forEach((bt,i)=>reelSlides.push({...bt,_m:r,_first:i===0,_bi:i})));
   rIdx=0;$('reels').style.display='block';rPaused=false;$('reelplay').textContent='⏸ Pause';
   buildSegs();renderReel();
 }
@@ -818,7 +819,7 @@ function startTimer(){
   if(!rPaused) rTimer=setTimeout(reelNext,dur);
 }
 function reelSpeak(){reelAudio=!reelAudio;$('reelspk').textContent=reelAudio?'🔈':'🔊';if(reelAudio)speakBeat();else stopAudio();}
-function speakBeat(){const sl=reelSlides[rIdx];if(!sl)return;speak((sl.b+'. '+(sl.s||'')).replace(/<[^>]+>/g,' '));}
+function speakBeat(){const sl=reelSlides[rIdx];if(!sl)return;playClip('reel-'+(sl._m&&sl._m.key)+'-'+sl._bi,(sl.b+'. '+(sl.s||'')).replace(/<[^>]+>/g,' '));}
 function reelToggle(){
   rPaused=!rPaused;$('reelplay').textContent=rPaused?'▶ Play':'⏸ Pause';
   const bar=$('segs').children[rIdx].firstChild;
@@ -836,8 +837,18 @@ function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/
 if('speechSynthesis' in window){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice;}catch(e){}}
 function speak(text,onend){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);if(voice)u.voice=voice;u.rate=1;u.pitch=1;if(onend)u.onend=onend;speechSynthesis.speak(u);}catch(e){if(onend)onend();}}
 function stopAudio(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){} reelAudio=false; lPlaying=false; var b=$('reelspk'); if(b)b.textContent='🔊';
-  if(typeof podPause==='function')podPause();
+  if(typeof podPause==='function')podPause(); if(typeof stopClip==='function')stopClip();
   var sa=$('studioAudio'); if(sa)sa.pause(); studioMode=false; var sb=$('studiobtn'); if(sb)sb.textContent='🎧';}
+/* ---- universal audio: play a pre-rendered studio clip if present, else the on-device voice ---- */
+let clipAudio=null;
+function stopClip(){ if(clipAudio){try{clipAudio.pause();}catch(e){} clipAudio=null;} }
+function playClip(key,text,onend){ stopClip(); try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}
+  var a=new Audio('audio/'+key+'.mp3'); clipAudio=a; var done=false;
+  var fb=function(){ if(done)return; done=true; clipAudio=null; speak((text||'').replace(/\s*\([^)]*\)/g,''),onend); };
+  a.onended=function(){ if(done)return; done=true; clipAudio=null; if(onend)onend(); };
+  a.onerror=fb;
+  try{ var p=a.play(); if(p&&p.catch)p.catch(fb); }catch(e){ fb(); } }
+function flashSpeak(){ var i=FLASH.indexOf(curFlash[fIdx]); var c=curFlash[fIdx]; playClip('flash-'+i,(c[0]+'. '+c[1]+'. '+(c[2]||''))); }
 
 
 /* ---------- VERSUS (confusable pairs, side by side) ---------- */
@@ -865,7 +876,7 @@ function renderVs(){const p=VERSUS[vIdx];$('vbar').style.width=Math.round(vIdx/V
   $('vnext').textContent=vIdx+1<VERSUS.length?'Next →':'Done →';}
 function vsNext(){stopAudio();if(vIdx+1<VERSUS.length){vIdx++;renderVs();}else{S.xp+=10;save();setStats();goHome();}}
 function vsPrev(){stopAudio();if(vIdx>0){vIdx--;renderVs();}}
-function vsRead(){const p=VERSUS[vIdx];speak((p.title+'. '+p.l.h+': '+p.l.pts.join(', ')+'. Versus '+p.r.h+': '+p.r.pts.join(', ')+'. Key: '+p.key).replace(/<[^>]+>/g,' '));}
+function vsRead(){const p=VERSUS[vIdx];playClip('vs-'+vIdx,(p.title+'. '+p.l.h+': '+p.l.pts.join(', ')+'. Versus '+p.r.h+': '+p.r.pts.join(', ')+'. Key: '+p.key).replace(/<[^>]+>/g,' '));}
 
 /* ---------- PROCESS MAP ---------- */
 const MAP=[
@@ -892,8 +903,8 @@ function startListen(){lScript=FLASH.map(c=>c[0]+'. '+c[1]+'. '+c[2].replace(/^�
   lIdx=0;lPlaying=false;$('lplay').textContent='▶ Play';show('listen');renderListen();}
 function renderListen(){$('lbar').style.width=Math.round(lIdx/lScript.length*100)+'%';$('ltag').textContent='Listen '+(lIdx+1)+' / '+lScript.length;
   $('lbig').textContent=lScript[lIdx].replace(/<[^>]+>/g,' ');}
-function listenToggle(){if(lPlaying){lPlaying=false;$('lplay').textContent='▶ Play';try{speechSynthesis.cancel();}catch(e){}}else{lPlaying=true;$('lplay').textContent='⏸ Pause';playListen();}}
-function playListen(){renderListen();speak(lScript[lIdx].replace(/<[^>]+>/g,' '),()=>{if(lPlaying){if(lIdx+1<lScript.length){lIdx++;playListen();}else{lPlaying=false;$('lplay').textContent='▶ Play';}}});}
+function listenToggle(){if(lPlaying){lPlaying=false;$('lplay').textContent='▶ Play';try{speechSynthesis.cancel();}catch(e){}stopClip();}else{lPlaying=true;$('lplay').textContent='⏸ Pause';playListen();}}
+function playListen(){renderListen();playClip('flash-'+lIdx,lScript[lIdx].replace(/<[^>]+>/g,' '),()=>{if(lPlaying){if(lIdx+1<lScript.length){lIdx++;playListen();}else{lPlaying=false;$('lplay').textContent='▶ Play';}}});}
 function listenNext(){lIdx=(lIdx+1)%lScript.length;if(lPlaying){playListen();}else{renderListen();}}
 
 /* ---------- GLOSSARY + auto-expand every acronym (assume zero prior knowledge) ---------- */
