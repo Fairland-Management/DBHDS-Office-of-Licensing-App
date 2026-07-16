@@ -6,14 +6,15 @@ The app plays audio/<key>.mp3 if it exists, otherwise falls back to the robotic
 on-device voice. So run this once (with your API key) and the boring audio is gone
 everywhere you rendered.
 
-QUICK START:
-    pip install openai pydub        # ffmpeg too (macOS: brew install ffmpeg)
+QUICK START (run each line by itself — do NOT paste the comments):
+    pip3 install openai
     export OPENAI_API_KEY="sk-...your key..."
-    python generate_clips.py                 # render ALL 120 clips (~$1-2)
-    python generate_clips.py flash           # only flashcards + Listen mode (27 clips)
-    python generate_clips.py reel            # only Micro-Reels
-    python generate_clips.py vs              # only Versus cards
+    python3 generate_clips.py
 
+Only needs the 'openai' package — no pydub, no ffmpeg (each clip is a single MP3).
+Render just one group:  python3 generate_clips.py flash   (flashcards + Listen mode)
+                        python3 generate_clips.py reel    (Micro-Reels)
+                        python3 generate_clips.py vs      (Versus cards)
 Clips are written to an  audio/  folder next to the app. Re-running skips clips
 that already exist, so it's cheap to render one group at a time.
 Reads clips_manifest.json (regenerate that only if the app's content changes).
@@ -50,15 +51,14 @@ def main():
         sys.exit(f"Set your API key first:  export {key}=...")
 
     outdir = os.path.join(HERE, "audio"); os.makedirs(outdir, exist_ok=True)
-    from pydub import AudioSegment
     made = skipped = 0
     for i, it in enumerate(items, 1):
         dest = os.path.join(outdir, it["key"] + ".mp3")
         if os.path.exists(dest):
             skipped += 1; continue
         print(f"[{i:>3}/{len(items)}] {it['key']}: {it['text'][:50]}...")
-        clip = AudioSegment.from_file(io.BytesIO(synth(it["text"])), format="mp3")
-        clip.export(dest, format="mp3", bitrate="128k")
+        with open(dest, "wb") as fh:          # each clip is one utterance = ready-to-save MP3 bytes
+            fh.write(synth(it["text"]))
         made += 1
     print(f"\nDone. Rendered {made} new clip(s), skipped {skipped} existing. -> {outdir}")
     print("Refresh the app — flashcards, reels, versus, and Listen mode now use the studio voice.")

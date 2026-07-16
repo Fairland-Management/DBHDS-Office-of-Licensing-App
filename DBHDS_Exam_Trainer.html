@@ -51,6 +51,15 @@
   .review .ry{color:var(--bad);font-size:13px}
   .review .rc{color:var(--good);font-size:13px;font-weight:700;margin:2px 0}
   .review .re{color:var(--muted);font-size:12.5px;margin-top:4px}
+  .coach{margin-top:14px;background:#171b34;border:1px solid #2e376b;border-radius:14px;padding:12px 14px;text-align:left}
+  .coach .ctitle{font-weight:800;color:var(--brand2);font-size:13px;margin-bottom:8px}
+  .coach .cgrp{margin-bottom:8px}
+  .coach .cgrp b{font-size:13px;color:#dfe6ff}
+  .coach .cgrp ul{margin:4px 0 0;padding-left:20px}
+  .coach .cgrp li{font-size:13.5px;line-height:1.5;margin-bottom:4px;color:#c7cef2}
+  .coach .cgrp.jg{margin-top:4px;border-top:1px dashed #33407a;padding-top:8px}
+  .coach .cgrp.jg b{color:var(--warn)}
+  .coach .cgrp.jg li b{color:#ffe08a}
   .opt[disabled]{cursor:default}
   .feedback{margin-top:16px;border-radius:14px;padding:14px 16px;font-size:15px;display:none;animation:pop .25s ease}
   .feedback.show{display:block}
@@ -259,6 +268,7 @@
     <div class="center" id="fanswer" style="display:none">
       <div class="flashback" id="ftext" style="font-size:19px;font-weight:800"></div>
       <div class="fliptip" id="ftip"></div>
+      <div id="fcoach" class="coach"></div>
     </div>
     <div class="row">
       <button class="btn ghost" onclick="goHome()">← Home</button>
@@ -335,6 +345,7 @@
     <h2 id="vtitle" style="margin-top:6px"></h2>
     <div class="vs" id="vsgrid"></div>
     <div class="keyline" id="vkey"></div>
+    <div id="vscoach" class="coach"></div>
     <div class="row">
       <button class="btn ghost" onclick="goHome()">← Home</button>
       <button class="btn ghost" onclick="vsPrev()">‹ Back</button>
@@ -1041,14 +1052,14 @@ function retryMissed(){if(!S.missed.length){goHome();return}queue=shuffle(S.miss
 
 /* ---------- FLASHCARDS ---------- */
 function startFlash(){show('flashm');renderFlash()}
-function renderFlash(){ stopClip();
+function renderFlash(){ stopClip(); var _fc=$('fcoach'); if(_fc)_fc.innerHTML='';
   const c=curFlash[fIdx];$('fbar').style.width=Math.round(fIdx/curFlash.length*100)+'%';
   $('ftag').textContent=`Flashcard ${fIdx+1} / ${curFlash.length}`;
   $('fcard').textContent=c[0];$('ftext').textContent=c[1];$('ftip').textContent=c[2]||'';
   $('ftip').style.display=c[2]?'block':'none';
   $('fanswer').style.display='none';$('flip').style.display='inline-block';$('fnext').style.display='none';
 }
-function flip(){$('fanswer').style.display='block';$('flip').style.display='none';$('fnext').style.display='inline-block';$('fnext').textContent=fIdx+1<curFlash.length?'Next →':'Done →';}
+function flip(){$('fanswer').style.display='block';$('flip').style.display='none';$('fnext').style.display='inline-block';$('fnext').textContent=fIdx+1<curFlash.length?'Next →':'Done →'; var _fi=FLASH.indexOf(curFlash[fIdx]); var _fc=$('fcoach'); if(_fc)_fc.innerHTML=coachHTML(FLR[_fi], curFlash[fIdx].join(' '));}
 function fNext(){fIdx++;if(fIdx<curFlash.length)renderFlash();else goHome();}
 
 /* ---------- MICRO-REELS ---------- */
@@ -1154,7 +1165,7 @@ function renderVs(){const p=VERSUS[vIdx];$('vbar').style.width=Math.round(vIdx/V
     '<div class="mid">vs</div>'+
     '<div class="col r"><h3>'+p.r.h+'</h3><ul>'+p.r.pts.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>';
   $('vkey').innerHTML='🎯 '+p.key;
-  $('vnext').textContent=vIdx+1<VERSUS.length?'Next →':'Done →';}
+  $('vnext').textContent=vIdx+1<VERSUS.length?'Next →':'Done →'; $('vscoach').innerHTML=coachHTML(VSR[vIdx], p.title+' '+p.l.pts.join(' ')+' '+p.r.pts.join(' ')+' '+p.key);}
 function vsNext(){stopAudio();if(vIdx+1<VERSUS.length){vIdx++;renderVs();}else{S.xp+=10;save();setStats();goHome();}}
 function vsPrev(){stopAudio();if(vIdx>0){vIdx--;renderVs();}}
 function vsRead(){const p=VERSUS[vIdx];playClip('vs-'+vIdx,(p.title+'. '+p.l.h+': '+p.l.pts.join(', ')+'. Versus '+p.r.h+': '+p.r.pts.join(', ')+'. Key: '+p.key).replace(/<[^>]+>/g,' '));}
@@ -1682,6 +1693,31 @@ function loadEpisode(i){ curEp=i; var ep=$('epPick'); if(ep)ep.value=i; var ps=$
   $('podplay').textContent='▶';$('eq').classList.remove('on');$('podspeed').textContent=pRate+'×';
   $('podchips').innerHTML=EP().chapters.map(function(c,idx){return '<button class="chip" onclick="jumpChapter('+idx+')">'+(idx+1)+'</button>';}).join('');
   probeStudio(EP().audio); renderPod(); }
+
+const VSR=[{"r": ["Deadline = <b>Close</b> (you can reapply). Dishonest = <b>Deny</b>."], "c": ["Both end an application — one is a timing failure, the other an integrity/eligibility failure.", "Denial also covers a missing Certificate of Occupancy and improper co-location."], "a": ["Missed 30/90-day deficiency deadline → CLOSURE. False info or a location problem → DENIAL."]}, {"r": ["III = the worst three: <b>Death, Sexual assault, Suicide-with-admission</b>."], "c": ["Both report to CHRIS within 24 hours of discovery.", "Level III is the only level that counts even off-premises."], "a": ["Watch qualifiers: choking is Level II only <b>with</b> physical intervention; a WRAP-planned psychiatric admission isn't 'unplanned.'"]}, {"r": ["CRC = the clock (23:59, recliners). CSU = the beds (≤16, a few days)."], "c": ["Both are 'somewhere to go' in Crisis Now — a CRC is observation to avoid hospitalization; a CSU is short residential stabilization."], "a": ["<b>16 beds</b> is the magic number: over 16 = federal IMD = no Medicaid for ages 21–64."]}, {"r": ["1 → about 10, 2 → 21 (business days)."], "c": ["Priority sets how fast you're pulled off the waitlist — a separate clock from the 30/90 deficiency deadline."], "a": ["Green = P1 (fast), Blue = P2. Non-priority = a year+."]}, {"r": ["90 days of CASH · statement < 90 days OLD · 90 CALENDAR days to fix (non-priority)."], "c": ["Two of the three 90s are money (evidence of resources); one is a deadline. Don't blend them."], "a": ["Bank statement → money question. Fixing deficiencies → deadline (and priority is 30, not 90)."]}, {"r": ["Conditional = learner's permit (6 mo, 12 max). Annual = 1 yr, Triennial = 3 yr."], "c": ["You must actually <b>serve people</b> during conditional to prove compliance; no adding services/locations until annual."], "a": ["6 + 6 = 12 is the ceiling; not serving anyone for 90 consecutive days blocks the move up."]}, {"r": ["Paper first (Policy Review), People second (Licensing)."], "c": ["Policy Review sends deficiency letters; the Licensing Specialist runs the on-site inspection, assigned after revisions are accepted."], "a": ["'Which specialist reviews first?' → Policy Review Specialist."]}, {"r": ["Kids = everyone + results FIRST. Adults = direct-care + supervisors, may start pending."], "c": ["Both flow through Fieldprint + CONNECT; the 15-business-day rule and 6-month letter live on the adult side."], "a": ["Children's facility → 'everyone, results before working.' Private → 'direct-care & supervisors, 15 business days.'"]}, {"r": ["105 everything · 46 kids · 115 rights."], "c": ["Most services = 105; children's residential adds 46; human rights is enforced by OHR under 115."], "a": ["Mentions children's residential → 46. Human rights / complaints → 115. Otherwise → 105."]}, {"r": ["CMS = federal $ · DMAS = state $ (the money) · DBHDS = day-to-day + licensing."], "c": ["HCBS runs on all three; you can't bill Medicaid until you're DMAS-enrolled AND settings-compliant."], "a": ["'The money / state Medicaid agency' → DMAS. 'Federal' → CMS. 'Licenses providers' → DBHDS."]}, {"r": ["Returned = THEIR turn (with Licensing). Issued = YOUR turn (respond)."], "c": ["'Issued' starts your 15-business-day clock; a re-issued CAP goes back to 'Issued.' Save ≠ Submit."], "a": ["Trap: 'Returned' does NOT mean it came back to you. Only 'Submit CAP' actually submits."]}];
+const FLR=[{"c": ["One number governs every module assessment AND the final exam."], "a": ["Distractors are 80/75/90 — it's always 85%."]}, {"c": ["The 90-minute clock belongs to the EXAM, not the untimed module assessments."], "a": ["25 questions · cameras on the whole time · covers all 16 modules."]}, {"c": ["The date the orientation-plus-exam requirement switched on."], "a": ["Applies to Priority 1 & 2 applicants before they apply."]}, {"c": ["Knowing which rulebook applies unlocks half the exam."], "a": ["Kids' residential → 46; human rights → 115; everything else → 105."]}, {"c": ["These three regs underpin training, safety, and quality for every service."], "a": ["Count up: 4 train, 5 risk, 6 quality."]}, {"c": ["Your first license; you must serve people during it to prove compliance."], "a": ["6 months each, 12 months combined max, then annual."]}, {"c": ["Priority sets how fast you're pulled off the waitlist."], "a": ["P1 ~5–10 business days, P2 21; non-priority a year+."]}, {"c": ["A separate clock from the priority pull — this is time to FIX gaps."], "a": ["Priority 30 calendar days, non-priority 90; miss it = closed."]}, {"c": ["The universal packet every service submits first."], "a": ["The 90-day money doc and 12-month budget are the usual trip-ups."]}, {"c": ["Two opposite ways an application ends — timing vs integrity."], "a": ["Missed deadline = closure (reapply); false info / no occupancy = denial."]}, {"c": ["Physical-environment safety, checked at the pre-license inspection."], "a": ["Air 65–80°F, hot water 100–120°F — don't swap them."]}, {"c": ["The response clock after you're cited."], "a": ["15 business days; one +10 extension (ask early); revised CAP 10 days."]}, {"c": ["Where a CAP sits in the CONNECT pipeline."], "a": ["The oddball is 'Returned' — it's with Licensing, not you."]}, {"c": ["A counter-intuitive status that trips everyone."], "a": ["'Returned' = you returned it to them; Save ≠ Submit."]}, {"c": ["What makes a CAP acceptable — mirrors reg 170.C."], "a": ["Issue+fix, systemic change, who monitors (title+frequency), completion dates."]}, {"c": ["The adult/private-provider timing rule."], "a": ["Kids' facilities are stricter — results before anyone works."]}, {"c": ["Eligibility letters expire — a documentation trap."], "a": ["Print & file it, or redo the whole check and pay again."]}, {"c": ["The level decides whether and how you report."], "a": ["Level I = quarterly QI review; II & III = CHRIS within 24 hours."]}, {"c": ["The most severe bucket; the only one counting off-premises."], "a": ["Death, sexual assault, suicide-attempt-with-admission."]}, {"c": ["The follow-through after reporting a serious incident."], "a": ["Report in 24 hours, root-cause analysis within 30 days."]}, {"c": ["Not everything in the crisis continuum is DBHDS-licensed."], "a": ["Regional Crisis Call Centers and CITACs are not licensed."]}, {"c": ["Two 'somewhere to go' options — observation vs residential."], "a": ["CRC 23:59 recliners; CSU ≤16 beds (over 16 = IMD)."]}, {"c": ["OHR oversees rights; it doesn't rescue or provide care."], "a": ["No 24/7 hotline, no emergency care, can't remove anyone, doesn't investigate all complaints."]}, {"c": ["Only one human-rights policy is due before licensure."], "a": ["The complaint resolution policy (12VAC35-115-175)."]}, {"c": ["Funding and oversight split across federal / state / operations."], "a": ["CMS federal $, DMAS state $ (the money), DBHDS day-to-day + licensing."]}, {"c": ["The one HCBS home condition that is absolute."], "a": ["Everything else can be modified for a documented need — never the ramp."]}, {"c": ["The gate to actually sitting the exam."], "a": ["Form + scanned photo ID, one email, same address."]}];
+const JARGON={
+ "co-location":"running two different licensed services in the same physical space (say, an outpatient program inside a group home) — usually not allowed.",
+ "Certificate of Occupancy":"a local-government document certifying a building is legally cleared to be used for its purpose.",
+ "certificate of use and occupancy":"the local permit that says a building may legally be occupied/used for its purpose.",
+ "deficiency":"a gap or problem the reviewer flagged in your application that you have to fix by a deadline.",
+ "conditional license":"a temporary ~6-month 'starter' license you get first, while you prove you can actually run the service.",
+ "WRAP":"Wellness Recovery Action Plan — a person's own written mental-health self-care plan (a planned admission under it isn't counted as 'unplanned').",
+ "waiver":"Medicaid funding that lets services be delivered in the community instead of an institution.",
+ "attestation":"a signed statement swearing something is true (e.g., that your policies follow the rules).",
+ "central registry":"a state list of people with founded child-abuse/neglect findings, checked before someone works with kids.",
+ "systemic":"affecting the whole process, not just one isolated case (fix the system, not only the one instance).",
+ "eligibility letter":"the document confirming a staff member passed their background check.",
+ "waitlist":"the queue your accepted application sits in until a specialist is assigned to it.",
+ "welcome letter":"the notice you get once accepted onto the waitlist; it tells you to start background checks.",
+ "disclosure statement":"a form where a person states whether they've ever been convicted of, or charged with, an offense."
+};
+function jargonHTML(text){ var low=(text||'').replace(/<[^>]+>/g,' ').toLowerCase(); var seen=[]; var out='';
+  Object.keys(JARGON).forEach(function(t){ if(low.indexOf(t.toLowerCase())!==-1){ var lab=t.charAt(0).toUpperCase()+t.slice(1); if(seen.indexOf(lab.toLowerCase())===-1){ seen.push(lab.toLowerCase()); out+='<li><b>'+t+'</b> — '+JARGON[t]+'</li>'; } } });
+  return out?'<div class="cgrp jg"><b>🔤 Plain-English terms</b><ul>'+out+'</ul></div>':''; }
+function coachHTML(o,extra){ if(!o)return ''; function b(lab,items){ return (items&&items.length)?'<div class="cgrp"><b>'+lab+'</b><ul>'+items.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>':''; }
+  var scan=[].concat(o.r||[],o.c||[],o.a||[]).join(' ')+' '+(extra||'');
+  return '<div class="ctitle">🧠 Coach&rsquo;s rationale</div>'+b('📌 Remember',o.r)+b('🔗 Connect',o.c)+b('🎯 Apply',o.a)+jargonHTML(scan); }
 
 /* ---------- CONFETTI ---------- */
 const cv=$('fx'),ctx=cv.getContext('2d');let parts=[];
