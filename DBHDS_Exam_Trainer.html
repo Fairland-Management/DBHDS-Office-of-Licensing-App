@@ -95,10 +95,12 @@
   .mode .emoji{font-size:26px}
   .mode b{display:block;font-size:16px}
   .mode span{color:var(--muted);font-size:13px}
-  .mode.hot{border-color:#8a6bff;background:linear-gradient(180deg,#2a2660,#20264d)}
+  .mode.hot{border-color:#8a6bff;background:linear-gradient(135deg,#2a2660,#20264d,#2a2660);background-size:200% 200%;animation:sheen 7s ease infinite}
   select{background:#20264d;color:var(--ink);border:1.5px solid #313a72;border-radius:12px;padding:11px 12px;font-size:15px;font-weight:600;width:100%}
   label.lbl{display:block;font-size:13px;color:var(--muted);font-weight:700;margin:14px 0 6px}
   .hint{color:var(--muted);font-size:12.5px;margin-top:14px;text-align:center}
+  .volrow{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;color:var(--muted);font-size:15px}
+  .volrow input[type=range]{flex:0 1 220px;accent-color:var(--brand);height:6px;cursor:pointer}
   kbd{background:#2a3266;border:1px solid #3a4488;border-bottom-width:2px;border-radius:6px;padding:1px 7px;font-size:12px;font-weight:700}
   .big{font-size:44px;font-weight:900;background:linear-gradient(135deg,var(--brand),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .center{text-align:center}
@@ -119,7 +121,7 @@
   /* REELS */
   #reels{position:fixed;inset:0;z-index:50;background:#0b0e20;display:none}
   .reelstage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:64px 26px 90px}
-  .reelbg{position:absolute;inset:0;opacity:.9;transition:background .6s}
+  .reelbg{position:absolute;inset:0;opacity:.9;transition:background .6s;animation:kenburns 18s ease-in-out infinite alternate;transform-origin:50% 40%}
   .segs{position:absolute;top:14px;left:14px;right:14px;display:flex;gap:5px;z-index:3}
   .seg{flex:1;height:4px;background:rgba(255,255,255,.25);border-radius:3px;overflow:hidden}
   .seg > i{display:block;height:100%;width:0;background:#fff;border-radius:3px}
@@ -128,7 +130,7 @@
   .reeltop .x{margin-left:auto;background:rgba(0,0,0,.35);border:none;color:#fff;font-size:18px;width:38px;height:38px;border-radius:50%;cursor:pointer;font-weight:800}
   .reelbeat{position:relative;z-index:2;max-width:600px}
   .reelemoji{font-size:64px;margin-bottom:10px;display:block;animation:bounce .7s cubic-bezier(.2,1.4,.4,1)}
-  .reelbig{font-size:34px;line-height:1.18;font-weight:900;color:#fff;text-shadow:0 3px 18px rgba(0,0,0,.45);animation:rise .5s ease}
+  .reelbig{font-size:34px;line-height:1.18;font-weight:900;color:#fff;text-shadow:0 3px 18px rgba(0,0,0,.45);animation:reelpop .55s cubic-bezier(.2,1,.3,1)}
   .reelsub{margin-top:14px;font-size:19px;font-weight:600;color:rgba(255,255,255,.92);text-shadow:0 2px 12px rgba(0,0,0,.45);animation:rise .6s ease}
   .reeltip{margin-top:18px;display:inline-block;background:rgba(255,255,255,.16);border:1.5px dashed rgba(255,255,255,.8);color:#fff;font-weight:800;
            font-size:18px;padding:12px 16px;border-radius:16px;animation:pop .4s ease;text-shadow:0 1px 8px rgba(0,0,0,.4)}
@@ -137,6 +139,13 @@
   .reelctl button{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.25);color:#fff;font-weight:800;border-radius:999px;padding:10px 16px;cursor:pointer;font-size:15px}
   .navzone{position:absolute;top:0;bottom:70px;width:34%;z-index:2;cursor:pointer}
   .navzone.left{left:0}.navzone.right{right:0}
+  .reelchips{position:absolute;top:70px;left:14px;right:14px;display:flex;flex-wrap:wrap;gap:6px;z-index:3;justify-content:center}
+  .reelchip{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.28);color:#fff;font-size:15px;line-height:1;padding:6px 9px;border-radius:999px;cursor:pointer;opacity:.6;transition:transform .12s,opacity .12s}
+  .reelchip:hover{transform:translateY(-1px) scale(1.08);opacity:1}
+  .reelchip.on{opacity:1;background:rgba(255,255,255,.22);border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+  @keyframes reelpop{0%{opacity:0;transform:translateY(18px) scale(.9)}55%{opacity:1;transform:translateY(0) scale(1.03)}100%{transform:translateY(0) scale(1)}}
+  @keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.09)}}
+  @keyframes sheen{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
   @keyframes rise{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
   @keyframes bounce{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
   /* Story / Versus / Map / Listen */
@@ -348,6 +357,7 @@
       <span class="spacer"></span>
       <button class="btn ghost" onclick="goHome()">Exit</button>
     </div>
+    <div class="volrow">🔈 <input type="range" id="pvol" min="0" max="1" step="0.05" value="1" oninput="setVol(this.value)" title="Volume"> 🔊</div>
     <div class="hint">A two-host podcast — Maya &amp; Theo. ▶ play · chapter numbers jump · ⏮ ⏭ skip a line · 1× cycles speed up to 2× · tap a line to replay it.<br>💡 Voices marked ✨ sound best. For truly natural narration, open this in <b>Microsoft Edge</b> (free neural voices) — or on Mac, download a Premium/Siri voice in System Settings → Accessibility → Spoken Content → System Voice.</div>
   </div>
 
@@ -386,11 +396,13 @@
     <div class="row">
       <button class="btn ghost" onclick="goHome()">← Home</button>
       <div class="spacer"></div>
-      <button class="btn ghost" id="lspeed" onclick="cycleClipSpeed()">1×</button>
+      <button class="btn ghost" onclick="listenPrev()" title="Previous">‹ Prev</button>
+      <button class="btn ghost" id="lspeed" onclick="cycleClipSpeed()" title="Speed">1×</button>
       <button class="btn good" id="lplay" onclick="listenToggle()">▶ Play</button>
       <button class="btn primary" onclick="listenNext()">Next →</button>
     </div>
-    <div class="hint">Uses your device's built-in voice. Hear nothing? Check volume and the silent switch.</div>
+    <div class="volrow">🔈 <input type="range" id="lvol" min="0" max="1" step="0.05" value="1" oninput="setVol(this.value)" title="Volume"> 🔊</div>
+    <div class="hint">‹ Prev / Next → step through · 1× cycles speed up to 2× · slider sets volume. Studio clips play if present, else your device voice.</div>
   </div>
 
   <!-- GLOSSARY -->
@@ -410,6 +422,7 @@
   <div class="reelbg" id="reelbg"></div>
   <div class="segs" id="segs"></div>
   <div class="reeltop"><span class="mtag" id="reelmtag"></span><button class="x" id="reelspk" onclick="reelSpeak()">🔊</button><button class="x" onclick="closeReels()">✕</button></div>
+  <div class="reelchips" id="reelchips"></div>
   <div class="navzone left" onclick="reelPrev()"></div>
   <div class="navzone right" onclick="reelNext()"></div>
   <div class="reelstage"><div class="reelbeat" id="reelbeat"></div></div>
@@ -908,7 +921,7 @@ const REELS = [
 let S = load();
 function load(){try{return JSON.parse(localStorage.getItem('dbhds')||'{}')}catch(e){return {}}}
 function save(){try{localStorage.setItem('dbhds',JSON.stringify(S))}catch(e){}}
-S.xp=S.xp||0; S.best=S.best||0; S.missed=S.missed||[]; S.starred=S.starred||[]; S.sfx=(S.sfx===undefined)?true:S.sfx; S.clipRate=S.clipRate||1;
+S.xp=S.xp||0; S.best=S.best||0; S.missed=S.missed||[]; S.starred=S.starred||[]; S.sfx=(S.sfx===undefined)?true:S.sfx; S.clipRate=S.clipRate||1; S.clipVol=(S.clipVol==null)?1:S.clipVol;
 
 let queue=[], idx=0, streak=0, correctCount=0, mode='', curFlash=[], fIdx=0, answered=false, pendingModule='';
 let mockMode=false, mockAns=[], mockTimer=null, mockLeft=0;
@@ -1079,16 +1092,7 @@ function fNext(){fIdx++;if(fIdx<curFlash.length)renderFlash();else goHome();}
 
 /* ---------- MICRO-REELS ---------- */
 let reelList=[], reelSlides=[], rIdx=0, rTimer=null, rStart=0, rPaused=false, rDur=4500;
-function openReelsPicker(){
-  // build a quick picker into the home hint area using a simple prompt-style overlay
-  const sel=$('modpick');
-  // reuse module dropdown but for reels
-  $('modpickLbl').style.display='block';$('modpickLbl').textContent='Pick a reel (or All modules)';
-  sel.style.display='block';sel.innerHTML='';
-  const all=document.createElement('option');all.value='__all';all.textContent='▶ All modules (play through)';sel.appendChild(all);
-  REELS.forEach(r=>{const o=document.createElement('option');o.value=r.key;o.textContent=r.emoji+' '+r.title;sel.appendChild(o)});
-  sel.onchange=()=>{playReel(sel.value);};
-}
+function openReelsPicker(){ playReel('__all'); }
 function playReel(key){
   $('modpick').style.display='none';$('modpickLbl').style.display='none';
   reelList = key==='__all'? REELS : REELS.filter(r=>r.key===key);
@@ -1096,13 +1100,19 @@ function playReel(key){
   reelSlides=[];
   reelList.forEach(r=>r.beats.forEach((bt,i)=>reelSlides.push({...bt,_m:r,_first:i===0,_bi:i})));
   rIdx=0;$('reels').style.display='block';rPaused=false;$('reelplay').textContent='⏸ Pause';
-  buildSegs();renderReel();
+  buildChips();buildSegs();renderReel();
 }
 function buildSegs(){const s=$('segs');s.innerHTML='';reelSlides.forEach(()=>{const d=document.createElement('div');d.className='seg';d.innerHTML='<i></i>';s.appendChild(d)});}
+function buildChips(){ var c=$('reelchips'); if(!c)return; c.innerHTML=''; if(reelList.length<2)return;
+  reelSlides.forEach(function(sl,i){ if(!sl._first)return;
+    var b=document.createElement('button'); b.className='reelchip'; b.textContent=sl._m.emoji; b.title=sl._m.title;
+    b.onclick=function(e){ e.stopPropagation(); rIdx=i; renderReel(); };
+    c.appendChild(b); }); }
 function renderReel(){
   const sl=reelSlides[rIdx];const r=sl._m;
   $('reelbg').style.background=`radial-gradient(1000px 700px at 50% 20%, ${r.grad[1]} 0%, ${r.grad[0]} 60%, #0b0e20 120%)`;
   $('reelmtag').textContent=r.emoji+' '+r.title;
+  var _cc=$('reelchips'); if(_cc&&_cc.children.length){var _mi=reelList.indexOf(r);[...(_cc.children)].forEach(function(ch,i){ch.classList.toggle('on',i===_mi);});}
   // segment fills
   [...$('segs').children].forEach((seg,i)=>{const bar=seg.firstChild;
     bar.style.transition='none';bar.style.width = i<rIdx?'100%':'0%';});
@@ -1142,7 +1152,7 @@ function closeReels(){clearTimeout(rTimer);$('reels').style.display='none';S.xp+
 let voice=null, reelAudio=false;
 function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/female|samantha|google us|zira|aria/i.test(v.name))||vs.find(v=>/^en/i.test(v.lang))||vs[0]||null;}catch(e){}}
 if('speechSynthesis' in window){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice;}catch(e){}}
-function speak(text,onend){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);if(voice)u.voice=voice;u.rate=1;u.pitch=1;if(onend)u.onend=onend;speechSynthesis.speak(u);}catch(e){if(onend)onend();}}
+function speak(text,onend){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);if(voice)u.voice=voice;u.rate=1;u.pitch=1;u.volume=(S.clipVol==null?1:S.clipVol);if(onend)u.onend=onend;speechSynthesis.speak(u);}catch(e){if(onend)onend();}}
 function stopAudio(){try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){} reelAudio=false; lPlaying=false; var b=$('reelspk'); if(b)b.textContent='🔊';
   if(typeof podPause==='function')podPause(); if(typeof stopClip==='function')stopClip();
   var sa=$('studioAudio'); if(sa)sa.pause(); studioMode=false; var sb=$('studiobtn'); if(sb)sb.textContent='🎧';}
@@ -1150,7 +1160,7 @@ function stopAudio(){try{if('speechSynthesis' in window)speechSynthesis.cancel()
 let clipAudio=null;
 function stopClip(){ if(clipAudio){try{clipAudio.pause();}catch(e){} clipAudio=null;} }
 function playClip(key,text,onend){ stopClip(); try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){}
-  var a=new Audio('audio/'+key+'.mp3'); clipAudio=a; try{a.playbackRate=S.clipRate||1;}catch(e){} a.oncanplay=function(){try{a.playbackRate=S.clipRate||1;}catch(e){}}; var done=false;
+  var a=new Audio('audio/'+key+'.mp3'); clipAudio=a; try{a.playbackRate=S.clipRate||1;a.volume=(S.clipVol==null?1:S.clipVol);}catch(e){} a.oncanplay=function(){try{a.playbackRate=S.clipRate||1;a.volume=(S.clipVol==null?1:S.clipVol);}catch(e){}}; var done=false;
   var fb=function(){ if(done)return; done=true; clipAudio=null; speak((text||'').replace(/\s*\([^)]*\)/g,''),onend); };
   a.onended=function(){ if(done)return; done=true; clipAudio=null; if(onend)onend(); };
   a.onerror=fb;
@@ -1206,7 +1216,7 @@ function startMap(){const tl=$('tl');tl.innerHTML='';MAP.forEach((s,i)=>{const d
 
 /* ---------- LISTEN MODE ---------- */
 let lIdx=0, lPlaying=false, lScript=[];
-function startListen(){var _ls=$('lspeed'); if(_ls)_ls.textContent=(S.clipRate||1)+'×'; lScript=FLASH.map(c=>c[0]+'. '+c[1]+'. '+c[2].replace(/^🧠\s*/,'Memory tip: '));
+function startListen(){var _ls=$('lspeed'); if(_ls)_ls.textContent=(S.clipRate||1)+'×'; var _lv=$('lvol'); if(_lv)_lv.value=(S.clipVol==null?1:S.clipVol); lScript=FLASH.map(c=>c[0]+'. '+c[1]+'. '+c[2].replace(/^🧠\s*/,'Memory tip: '));
   lIdx=0;lPlaying=false;$('lplay').textContent='▶ Play';show('listen');renderListen();}
 function renderListen(){$('lbar').style.width=Math.round(lIdx/lScript.length*100)+'%';$('ltag').textContent='Listen '+(lIdx+1)+' / '+lScript.length;
   $('lbig').textContent=lScript[lIdx].replace(/<[^>]+>/g,' ');}
@@ -1630,7 +1640,7 @@ function speakPod(){ clearTimeout(podTimer); renderPod();
     if(pi>=parts.length){ podTimer=setTimeout(advancePod,Math.max(120,240/pRate)); return; }
     const u=new SpeechSynthesisUtterance(parts[pi]); pi++;
     if(isM&&voiceA)u.voice=voiceA; if(!isM&&voiceB)u.voice=voiceB;
-    u.rate=Math.min(2,pRate*(isM?0.98:0.95)); u.pitch=isM?1.06:0.92;
+    u.rate=Math.min(2,pRate*(isM?0.98:0.95)); u.pitch=isM?1.06:0.92; u.volume=(S.clipVol==null?1:S.clipVol);
     u.onend=()=>{ if(gen!==podGen||!pPlaying)return; podTimer=setTimeout(sayNext,Math.max(60,110/pRate)); };
     u.onerror=()=>{ if(gen!==podGen||!pPlaying)return; podTimer=setTimeout(sayNext,Math.max(60,110/pRate)); };
     try{speechSynthesis.speak(u);}catch(e){ podTimer=setTimeout(sayNext,300); } }
@@ -1649,8 +1659,7 @@ function scrubClick(e){ const r=e.currentTarget.getBoundingClientRect(); const p
   if(studioMode){var sa=$('studioAudio'); if(sa&&sa.duration)sa.currentTime=pct*sa.duration; return;}
   pIdx=Math.min(POD.length-1,Math.max(0,Math.round(pct*POD.length))); if(pPlaying)speakPod(); else renderPod(); }
 function cycleSpeed(){ const r=[1,1.25,1.5,1.75,2,0.85]; var i=r.indexOf(pRate); pRate=r[(i<0?0:i+1)%r.length]; $('podspeed').textContent=pRate+'×';
-  if(studioMode){var sa=$('studioAudio'); if(sa)sa.playbackRate=Math.min(2,pRate); return;}
-  if(pPlaying)speakPod(); }
+  var _sa=$('studioAudio'); if(studioMode&&_sa)_sa.playbackRate=Math.min(2,pRate); }
 function podFinish(){ pPlaying=false;$('podplay').textContent='▶';$('eq').classList.remove('on'); try{bigConfetti();}catch(e){} }
 
 /* ---- studio recording (real MP3) mode ---- */
@@ -1670,7 +1679,7 @@ function probeStudio(base){ var sa=$('studioAudio'); if(!sa)return; studioMode=f
   try{sa.src=cands[0];}catch(e){} }
 function enterStudio(){ var sa=$('studioAudio'); if(!sa)return; podPause(); studioMode=true; studioLine=-1;
   $('studiobtn').textContent='🎙'; $('studiobtn').title='Back to read-aloud voices';
-  sa.playbackRate=Math.min(2,pRate); try{sa.play();}catch(e){} $('podplay').textContent='⏸'; $('eq').classList.add('on'); }
+  sa.playbackRate=Math.min(2,pRate); try{sa.volume=(S.clipVol==null?1:S.clipVol);}catch(e){} try{sa.play();}catch(e){} $('podplay').textContent='⏸'; $('eq').classList.add('on'); }
 function exitStudio(){ var sa=$('studioAudio'); if(sa)sa.pause(); studioMode=false;
   $('studiobtn').textContent='🎧'; $('studiobtn').title='Play the studio recording';
   $('podplay').textContent='▶'; $('eq').classList.remove('on'); renderPod(); }
@@ -1699,7 +1708,7 @@ function podQuizFinishPanel(){ $('podquiz').style.display='none'; podQuizActive=
   pIdx++; if(pPlaying){$('eq').classList.add('on');speakPod();} else renderPod(); }
 
 /* ---- entry + episode switching ---- */
-function startStory(){ pPlaying=false;pRate=1;$('podspeed').textContent='1×';$('podplay').textContent='▶';$('eq').classList.remove('on');
+function startStory(){ pPlaying=false;pRate=1;$('podspeed').textContent='1×';$('podplay').textContent='▶';$('eq').classList.remove('on'); var _pv=$('pvol'); if(_pv)_pv.value=(S.clipVol==null?1:S.clipVol);
   var ep=$('epPick'); if(ep&&!ep.dataset.filled){ep.dataset.filled='1'; ep.innerHTML=EPISODES.map(function(e,i){return '<option value="'+i+'">'+(i+1)+'. '+e.title+'</option>';}).join('');}
   loadVoices(); show('story'); loadEpisode(curEp); }
 function loadEpisode(i){ curEp=i; var ep=$('epPick'); if(ep)ep.value=i; var ps=$('podshow'); if(ps)ps.textContent='🎙️ '+EP().title;
@@ -1747,7 +1756,13 @@ function sfx(type){ if(!S.sfx)return; try{ _actx=_actx||new (window.AudioContext
 }catch(e){} }
 function toggleSfx(){ S.sfx=!S.sfx; save(); var b=$('sfxbtn'); if(b)b.textContent=S.sfx?'🔊':'🔇'; if(S.sfx)sfx('pop'); }
 function xpPop(n){ try{ var el=document.createElement('div'); el.className='xppop'; el.textContent='+'+n+' XP'; document.body.appendChild(el); setTimeout(function(){el.remove();},1000);}catch(e){} }
-function cycleClipSpeed(){ var r=[1,1.25,1.5,1.75,2,0.85]; var i=r.indexOf(S.clipRate||1); S.clipRate=r[(i<0?0:i+1)%r.length]; save(); var b=$('lspeed'); if(b)b.textContent=S.clipRate+'×'; if(clipAudio){try{clipAudio.playbackRate=S.clipRate;}catch(e){}} }
+function cycleClipSpeed(){ var r=[1,1.25,1.5,1.75,2,0.85]; var i=r.indexOf(S.clipRate||1); S.clipRate=r[(i<0?0:i+1)%r.length]; save(); var b=$('lspeed'); if(b)b.textContent=S.clipRate+'×'; if(clipAudio){try{clipAudio.playbackRate=S.clipRate;}catch(e){}} var sa=$('studioAudio'); if(studioMode&&sa){try{sa.playbackRate=Math.min(2,S.clipRate);}catch(e){}} }
+/* universal VOLUME — applies live to whatever is playing; next TTS line reads S.clipVol */
+function setVol(v){ v=parseFloat(v); if(isNaN(v))v=1; v=Math.max(0,Math.min(1,v)); S.clipVol=v; save();
+  if(clipAudio){try{clipAudio.volume=v;}catch(e){}}
+  var sa=$('studioAudio'); if(sa){try{sa.volume=v;}catch(e){}}
+  var a=$('lvol'); if(a&&parseFloat(a.value)!==v)a.value=v; var b=$('pvol'); if(b&&parseFloat(b.value)!==v)b.value=v; }
+function listenPrev(){ if(!lScript.length)return; lIdx=(lIdx-1+lScript.length)%lScript.length; if(lPlaying){playListen();}else{renderListen();} }
 
 /* ---------- CONFETTI ---------- */
 const cv=$('fx'),ctx=cv.getContext('2d');let parts=[];

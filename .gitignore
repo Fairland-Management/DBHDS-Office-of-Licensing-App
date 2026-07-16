@@ -1,0 +1,13 @@
+# Generated studio audio — large, regenerate locally with generate_clips.py / generate_podcast_audio.py
+audio/
+*.mp3
+*.wav
+*.m4a
+*.ogg
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
