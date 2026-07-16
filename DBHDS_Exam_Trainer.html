@@ -166,6 +166,9 @@
   .tbtn:active{transform:scale(.95)}
   .tbtn.big{width:58px;height:58px;font-size:22px;background:linear-gradient(135deg,var(--brand),#9a7cff);color:#0b1030;border:none}
   .podline{color:var(--muted);font-size:12px;font-weight:700;margin-left:2px}
+  .voicebar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .voicebar .vlbl{font-size:12px;font-weight:800;color:var(--muted)}
+  .voicebar select{flex:1;min-width:110px;padding:7px 8px;font-size:12px}
   #podquiz{background:#191d3a;border:1.5px solid #34407e;border-radius:16px;padding:14px;margin:12px 0 4px;animation:pop .25s ease}
   .pqhead{font-weight:800;color:var(--brand2);font-size:13px;margin-bottom:8px}
   .pqq{font-weight:700;font-size:16px;margin-bottom:12px}
@@ -276,6 +279,13 @@
       <div><div class="podshow">🎙️ So You Want to Get Licensed</div><div class="podep" id="podep">Chapter 1</div></div>
       <div class="eq" id="eq"><span></span><span></span><span></span><span></span></div>
     </div>
+    <div class="voicebar">
+      <span class="vlbl">🎙 Maya</span>
+      <select id="voiceMaya" onchange="setVoice('A')" title="Maya's voice"></select>
+      <span class="vlbl">Theo</span>
+      <select id="voiceTheo" onchange="setVoice('B')" title="Theo's voice"></select>
+      <button class="audiobtn" onclick="testVoices()">▶ Test</button>
+    </div>
     <div class="chips" id="podchips"></div>
     <div class="transcript" id="transcript"></div>
     <div class="lockbox" id="storylock"></div>
@@ -302,7 +312,7 @@
       <span class="spacer"></span>
       <button class="btn ghost" onclick="goHome()">Exit</button>
     </div>
-    <div class="hint">A two-host podcast — Maya &amp; Theo. ▶ play · tap a chapter number to jump · ⏮ ⏭ skip a line · 1× changes speed · tap any line to replay it.</div>
+    <div class="hint">A two-host podcast — Maya &amp; Theo. ▶ play · chapter numbers jump · ⏮ ⏭ skip a line · 1× cycles speed up to 2× · tap a line to replay it.<br>💡 Voices marked ✨ sound best. For truly natural narration, open this in <b>Microsoft Edge</b> (free neural voices) — or on Mac, download a Premium/Siri voice in System Settings → Accessibility → Spoken Content → System Voice.</div>
   </div>
 
   <!-- VERSUS -->
@@ -942,13 +952,32 @@ function startGlossary(){const el=$('gloss');el.innerHTML='';
   show('glossary');}
 
 /* ================= STORY MODE — TWO-HOST PODCAST ================= */
-let voiceA=null, voiceB=null;
-function pickVoices(){try{const vs=speechSynthesis.getVoices();const en=vs.filter(v=>/^en/i.test(v.lang));
-  const fem=en.find(v=>/(samantha|victoria|karen|moira|tessa|fiona|female|zira|aria|jenny|allison|ava|susan|serena)/i.test(v.name));
-  const mal=en.find(v=>/(daniel|alex|fred|tom|aaron|rishi|guy|david|george|arthur|male|oliver|reed|nathan)/i.test(v.name)&&v!==fem);
-  voiceA=fem||en[0]||vs[0]||null; voiceB=mal||en.find(v=>v!==voiceA)||en[1]||voiceA;}catch(e){}}
-if('speechSynthesis' in window){pickVoices();try{speechSynthesis.onvoiceschanged=function(){pickVoice();pickVoices();};}catch(e){}}
+let voiceA=null, voiceB=null, allVoices=[];
 const hasTTS=('speechSynthesis' in window);
+function rankVoice(v){let s=0;const n=((v.name||'')+' '+(v.voiceURI||''));
+  if(/natural|neural|online/i.test(n))s+=100; if(/premium|enhanced/i.test(n))s+=60; if(/siri/i.test(n))s+=50; if(/google/i.test(n))s+=25;
+  if(/^en[-_]US/i.test(v.lang))s+=15; else if(/^en/i.test(v.lang))s+=8; return s;}
+function byKey(k){ if(!k)return null; for(const v of allVoices){ if(v.voiceURI===k||v.name===k)return v; } return null; }
+function autoPick(g,pool,exclude){ const ranked=pool.slice().sort((a,b)=>rankVoice(b)-rankVoice(a));
+  const fem=/(female|samantha|victoria|karen|moira|tessa|fiona|zira|aria|jenny|allison|ava|susan|serena|joanna|salli|kendra|nova|zoe)/i;
+  const mal=/(\bmale\b|daniel|alex|fred|tom|aaron|rishi|guy|david|george|arthur|oliver|reed|nathan|matthew|brian|onyx|eric|liam)/i;
+  const re=(g==='f'?fem:mal); let pick=ranked.find(v=>v!==exclude&&re.test(v.name)); if(!pick)pick=ranked.find(v=>v!==exclude); return pick||ranked[0]||null; }
+function loadVoices(){ if(!hasTTS)return; try{allVoices=speechSynthesis.getVoices()||[];}catch(e){allVoices=[];}
+  if(!allVoices.length)return; const en=allVoices.filter(v=>/^en/i.test(v.lang)); const pool=en.length?en:allVoices;
+  voiceA=byKey(S.voiceA)||autoPick('f',pool,null); voiceB=byKey(S.voiceB)||autoPick('m',pool,voiceA);
+  fillVoicePickers(); }
+function fillVoicePickers(){ const a=$('voiceMaya'), b=$('voiceTheo'); if(!a||!b||!allVoices.length)return;
+  const opts=allVoices.slice().sort((x,y)=>rankVoice(y)-rankVoice(x)).map(v=>'<option value="'+(v.voiceURI||v.name)+'">'+v.name+' · '+v.lang+(rankVoice(v)>=60?' ✨':'')+'</option>').join('');
+  a.innerHTML=opts; b.innerHTML=opts;
+  if(voiceA)a.value=voiceA.voiceURI||voiceA.name; if(voiceB)b.value=voiceB.voiceURI||voiceB.name; }
+function setVoice(which){ const sel=$(which==='A'?'voiceMaya':'voiceTheo'); const v=byKey(sel.value); if(!v)return;
+  if(which==='A'){voiceA=v;S.voiceA=sel.value;} else {voiceB=v;S.voiceB=sel.value;} save();
+  if(pPlaying)speakPod(); }
+function testVoices(){ try{speechSynthesis.cancel();}catch(e){}
+  const u1=new SpeechSynthesisUtterance("Hey, I'm Maya."); if(voiceA)u1.voice=voiceA; u1.rate=.98;u1.pitch=1.06;
+  const u2=new SpeechSynthesisUtterance("And I'm Theo. Let's get into it."); if(voiceB)u2.voice=voiceB; u2.rate=.95;u2.pitch=.92;
+  u1.onend=function(){try{speechSynthesis.speak(u2);}catch(e){}}; try{speechSynthesis.speak(u1);}catch(e){} }
+if(hasTTS){ loadVoices(); try{speechSynthesis.onvoiceschanged=function(){pickVoice();loadVoices();};}catch(e){} }
 
 const EPISODE={ title:"So You Want to Get Licensed", hosts:{M:"Maya",T:"Theo"}, chapters:[
  {title:"The Dream", fact:"Since Nov 7, 2025, Priority 1 & 2 applicants must finish the 16 modules and pass the exam at 85% before they can apply.", lines:[
@@ -1051,11 +1080,13 @@ function buildPod(){POD=[];chapterStart=[];EPISODE.chapters.forEach((c,ci)=>{cha
 function startStory(){ if(!POD.length)buildPod(); pIdx=0;pPlaying=false;pRate=1;podRenderedCi=-1;
   $('podspeed').textContent='1×';$('podplay').textContent='▶';$('eq').classList.remove('on');
   $('podchips').innerHTML=EPISODE.chapters.map((c,i)=>'<button class="chip" onclick="jumpChapter('+i+')">'+(i+1)+'</button>').join('');
-  var sa=$('studioAudio'); if(sa&&!sa.dataset.init){sa.dataset.init='1';sa.src='podcast.mp3';
+  var sa=$('studioAudio'); if(sa&&!sa.dataset.init){sa.dataset.init='1';
+    var cands=['podcast.mp3','podcast.m4a','podcast.wav','podcast.ogg'], ci=0;
     sa.onloadedmetadata=function(){$('studiobtn').style.display='inline-flex';};
-    sa.onerror=function(){$('studiobtn').style.display='none';};
-    sa.onended=function(){$('studiobtn').textContent='🎧';};}
-  show('story'); renderPod(); }
+    sa.onerror=function(){ ci++; if(ci<cands.length){sa.src=cands[ci];} else {$('studiobtn').style.display='none';} };
+    sa.onended=function(){$('studiobtn').textContent='🎧';};
+    sa.src=cands[0];}
+  loadVoices(); show('story'); renderPod(); }
 function toggleStudio(){ var sa=$('studioAudio'); if(!sa)return; podPause();
   if(sa.paused){ try{sa.play();}catch(e){} $('studiobtn').textContent='🎧⏸'; }
   else { sa.pause(); $('studiobtn').textContent='🎧'; } }
@@ -1075,14 +1106,20 @@ function togglePod(){ pPlaying?podPause():podPlay(); }
 function podPlay(){ var sa=$('studioAudio'); if(sa)sa.pause(); var sb=$('studiobtn'); if(sb)sb.textContent='🎧'; pPlaying=true;$('podplay').textContent='⏸';$('eq').classList.add('on');speakPod(); }
 function podPause(){ pPlaying=false; var p=$('podplay'); if(p)p.textContent='▶'; var e=$('eq'); if(e)e.classList.remove('on'); clearTimeout(podTimer); try{if('speechSynthesis' in window)speechSynthesis.cancel();}catch(e){} }
 function speakPod(){ clearTimeout(podTimer); renderPod();
-  if(!hasTTS){ if(pPlaying)podTimer=setTimeout(advancePod,Math.max(1700,POD[pIdx].t.length*42)); return; }
-  const l=POD[pIdx], gen=++podGen, isM=l.w==='M';
-  const u=new SpeechSynthesisUtterance(l.t);
-  if(isM&&voiceA)u.voice=voiceA; if(!isM&&voiceB)u.voice=voiceB;
-  u.rate=pRate*(isM?1.0:0.98); u.pitch=isM?1.12:0.9;
-  u.onend=()=>{ if(gen!==podGen||!pPlaying)return; podTimer=setTimeout(advancePod,220); };
-  u.onerror=()=>{ if(gen!==podGen||!pPlaying)return; podTimer=setTimeout(advancePod,220); };
-  try{speechSynthesis.cancel();}catch(e){} try{speechSynthesis.speak(u);}catch(e){ if(pPlaying)podTimer=setTimeout(advancePod,1600); } }
+  if(!hasTTS){ if(pPlaying)podTimer=setTimeout(advancePod,Math.max(1500,POD[pIdx].t.length*40)/pRate); return; }
+  const l=POD[pIdx], isM=l.w==='M', gen=++podGen;
+  const parts=(l.t.match(/[^.!?]+[.!?]*/g)||[l.t]).map(s=>s.trim()).filter(Boolean);
+  let pi=0;
+  function sayNext(){ if(gen!==podGen||!pPlaying)return;
+    if(pi>=parts.length){ podTimer=setTimeout(advancePod,Math.max(120,240/pRate)); return; }
+    const u=new SpeechSynthesisUtterance(parts[pi]); pi++;
+    if(isM&&voiceA)u.voice=voiceA; if(!isM&&voiceB)u.voice=voiceB;
+    u.rate=Math.min(2,pRate*(isM?0.98:0.95)); u.pitch=isM?1.06:0.92;
+    u.onend=()=>{ if(gen!==podGen||!pPlaying)return; podTimer=setTimeout(sayNext,Math.max(60,110/pRate)); };
+    u.onerror=()=>{ if(gen!==podGen||!pPlaying)return; podTimer=setTimeout(sayNext,Math.max(60,110/pRate)); };
+    try{speechSynthesis.speak(u);}catch(e){ podTimer=setTimeout(sayNext,300); } }
+  try{speechSynthesis.cancel();}catch(e){}
+  sayNext(); }
 function advancePod(){ if(!pPlaying)return;
   const ci=POD[pIdx].ci, atEnd=(pIdx>=POD.length-1)||(POD[pIdx+1].ci!==ci);
   if(atEnd && showChapterQuiz(ci))return;
@@ -1093,7 +1130,7 @@ function prevPod(){ if(pIdx>0)pIdx--; if(pPlaying)speakPod(); else renderPod(); 
 function jumpChapter(ci){ pIdx=chapterStart[ci]; if(pPlaying)speakPod(); else renderPod(); }
 function jumpLine(gi){ pIdx=gi; if(pPlaying)speakPod(); else renderPod(); }
 function scrubClick(e){ const r=e.currentTarget.getBoundingClientRect(); const pct=(e.clientX-r.left)/r.width; pIdx=Math.min(POD.length-1,Math.max(0,Math.round(pct*POD.length)-0)); if(pPlaying)speakPod(); else renderPod(); }
-function cycleSpeed(){ const r=[1,1.25,1.5,0.85]; pRate=r[(r.indexOf(pRate)+1)%r.length]; $('podspeed').textContent=pRate+'×'; if(pPlaying)speakPod(); }
+function cycleSpeed(){ const r=[1,1.25,1.5,1.75,2,0.85]; var i=r.indexOf(pRate); pRate=r[(i<0?0:i+1)%r.length]; $('podspeed').textContent=pRate+'×'; if(pPlaying)speakPod(); }
 function podFinish(){ pPlaying=false;$('podplay').textContent='▶';$('eq').classList.remove('on'); try{bigConfetti();}catch(e){} }
 
 /* one quick check per chapter — explanations are short and connect back to the story */
