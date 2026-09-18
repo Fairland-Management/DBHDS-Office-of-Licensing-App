@@ -112,6 +112,9 @@
   .cfnum{font-weight:900;font-size:13px;background:rgba(255,255,255,.12);padding:3px 9px;border-radius:999px}
   .cfmod{color:var(--muted);font-size:12.5px;font-weight:700}
   .cfbadge{margin-left:auto;background:#ff6b6b;color:#12142b;font-weight:900;font-size:11px;letter-spacing:.06em;padding:3px 9px;border-radius:999px}
+  .cfsit{font-size:11px;font-weight:800;color:var(--muted);background:rgba(255,255,255,.08);padding:3px 8px;border-radius:999px}
+  .cfmulti{font-size:11px;font-weight:900;color:#0b1030;background:var(--brand);padding:3px 8px;border-radius:999px;letter-spacing:.05em}
+  .cfrep{font-size:11px;font-weight:900;color:#3a2600;background:var(--warn);padding:3px 8px;border-radius:999px;letter-spacing:.05em}
   .cfstem{font-weight:800;font-size:15.5px;line-height:1.35;margin-bottom:9px}
   .cfopt{font-size:14px;padding:7px 10px;border-radius:9px;margin-top:5px;background:rgba(255,255,255,.05);color:var(--muted)}
   .cfopt.ok{background:rgba(61,220,151,.16);border:1px solid rgba(61,220,151,.55);color:var(--text);font-weight:800}
@@ -251,7 +254,7 @@
   <div id="home" class="card">
     <h1>Ready to lock it in? 🧠</h1>
     <p class="sub">Bite-size rounds, instant feedback, streaks, and memory hooks. Bail anytime — no pressure.</p>
-    <div class="buildstamp">build <b>2026.09.18</b> · 321 questions · 12 multi-select · 24 confirmed</div>
+    <div class="buildstamp">build <b>2026.09.18b</b> · 341 questions · 14 multi-select · 44 confirmed (2 sittings)</div>
     <div class="grid">
       <div class="mode hot" onclick="start('confirmed')"><div class="emoji">✅</div><div><b>Confirmed Questions</b><span>24 questions from a real graded exam — highest value in the app.</span></div></div>
       <div class="mode hot" onclick="start('reels')"><div class="emoji">🎬</div><div><b>Micro-Reels</b><span>Short-form animated "video" facts by module.</span></div></div>
@@ -410,16 +413,17 @@
   <div id="confirmed" class="card" style="display:none">
     <span class="tag">✅ Confirmed exam questions</span>
     <h1 style="margin-top:6px">Straight from the real exam 🎯</h1>
-    <p class="sub">24 questions captured from a graded sitting, in the exam's own wording. These are the highest-value items in the app — everything else is preparation for these.</p>
-    <div class="cfnote">✅ The numbering runs <b>Q5 → Q29 — exactly 25 questions</b>, which matches the official DBHDS count (the exam simply doesn't start its numbering at 1). <b>24 of the 25 are here</b>; only <b>Q22</b> wasn't captured. So this section is very nearly the whole exam.</div>
+    <p class="sub">Two complete graded sittings, in the exam's own wording. These are the highest-value items in the app — everything else is preparation for these.</p>
+    <div class="cfnote">✅ Both sittings number <b>Q5 → Q29 — exactly 25 questions</b>, matching the official DBHDS count (the exam just doesn't start numbering at 1). <b>Sitting 1: 24 of 25</b> captured (only Q22 missing). <b>Sitting 2: all 25</b>. <b>5 questions appeared on BOTH</b> — those are marked ★ and are your highest-probability repeats.</div>
     <div class="row">
-      <button class="btn primary" onclick="drillConfirmed('all')">Drill all 24 →</button>
-      <button class="btn good" onclick="drillConfirmed('miss')">⚠️ Drill the 6 misses →</button>
+      <button class="btn primary" onclick="drillConfirmed('all')">Drill all →</button>
+      <button class="btn good" onclick="drillConfirmed('miss')">⚠️ Drill the misses →</button>
+      <button class="btn ghost" onclick="drillConfirmed('rep')">★ Drill the repeats →</button>
       <div class="spacer"></div>
       <button class="btn ghost" onclick="goHome()">← Home</button>
     </div>
     <div id="cfList"></div>
-    <div class="row"><button class="btn ghost" onclick="goHome()">← Home</button><div class="spacer"></div><button class="btn primary" onclick="drillConfirmed('all')">Drill all 24 →</button></div>
+    <div class="row"><button class="btn ghost" onclick="goHome()">← Home</button><div class="spacer"></div><button class="btn primary" onclick="drillConfirmed('all')">Drill all →</button></div>
   </div>
 
   <!-- LISTEN -->
@@ -832,8 +836,38 @@ const CONFIRMED = [
 {n:28,miss:false,m:"M5 · The Initial Application",q:"The following forms of financial resources are acceptable to document proof of 90 days of operating expenses:",o:["Business savings account, retirement account, bank line of credit, and gifted funds","Business checking account, home equity line of credit, credit card with available balance, and personal savings account","Investment account, retirement account, gifted funds, life insurance policy","Credit card with available balance, promissory note, business checking account, investment account"],a:1,e:"Acceptable = money you can actually <b>reach today</b>: business checking, a home equity line of credit, a credit card with available balance, personal savings. Every wrong option smuggles in something unacceptable — <b>retirement accounts, gifted funds, investment accounts, life insurance, promissory notes</b>. Scan each option for one of those and eliminate it."},
 {n:29,miss:false,m:"M10 · Modifications",q:"A Variance can be implemented as soon as it is submitted through the CONNECT provider portal.",o:["True","False"],a:1,e:"False. A variance must be <b>approved before you act on it</b> — submitting is not permission. Same trap family as <b>Save ≠ Submit</b> in CONNECT."}
 ];
+
+/* ---- SITTING 2 — a second complete graded sitting (Sept 2026). Q5–Q29 = all 25 captured.
+       5 items also appeared on sitting 1; those are flagged rep:true on the sitting-1 entry. ---- */
+CONFIRMED.push(
+{n:5,s:2,m:"M3 · Preparing to Apply",q:"According to the regulations, how often does a provider need to review and complete a Quality Improvement Plan?",o:["At least semi-annually","At least monthly","At least annually","At least quarterly"],a:2,e:"<b>At least annually</b> (12VAC35-105-620.C.1). Don't let <i>quarterly</i> pull you — quarterly is the review cadence for <b>Level I incidents</b>, not the Quality Improvement Plan."},
+{n:6,s:2,m:"M14 · Office of Human Rights",q:"Per the Human Rights Regulations, all providers must comply with requests by the Office of Human Rights for information, policies, procedures, and written reports regarding compliance. This includes providing unrestricted access to records, following the rules of the complaint resolution process, as well as fulfilling their responsibilities specific to the individuals' right to due process.",o:["True","False"],a:0,e:"True. This is the enforcement teeth behind 12VAC35-115 — <b>unrestricted</b> access to records, compliance with OHR requests, and due process. You cannot negotiate with an OHR records request."},
+{n:7,s:2,m:"M15 · HCBS",q:"What could happen if a provider is unable to be compliant with HCBS settings requirements?",o:["They will have to submit a Corrective Action Plan to the Office of Licensing","They will be unable to bill for services provided","They have to participate in a required training","All of the above"],a:1,e:"<b>They can't bill.</b> HCBS settings compliance is a <b>Medicaid payment</b> condition, not a licensing citation — so the consequence is money, not a CAP or a training. Remember the split: Office of Licensing issues CAPs; DMAS controls the dollars."},
+{n:8,s:2,m:"M3 · Preparing to Apply",q:"Policies and procedures are working documents. They should be regularly reviewed and updated and available to staff and review entities, such as the Office of Licensing.",o:["True","False"],a:0,e:"True — a module pro tip. Policies aren't write-once-and-file; they're living documents that must be current and produced on request."},
+{n:9,s:2,m:"M11 · Background Checks",q:"For general regulations 12VAC35-105, a DBHDS licensed provider may not serve individuals until they have requested background and central registry checks for direct care staff and supervisors.",o:["True","False"],a:0,e:"True. The verb is <b>requested</b>, not completed — for adult/private providers you may begin serving once the checks are requested. Children's residential is the stricter twin: all results in hand before anyone works."},
+{n:10,s:2,miss:true,m:"M5 · The Initial Application",q:"Application requirements include all of the following, except:",o:["Evidence of Financial Resources for 90 Days","Reference Checks","Organizational Structure","Policies and Procedures"],a:1,e:"<b>Reference Checks</b> are not one of the application documents. Evidence of 90 days of financial resources, organizational structure, and policies and procedures all are. The trap: <i>reference</i> checks sound like <i>background</i> checks — background checks are required, but they're a staffing requirement, not one of the documents you upload with the application.",fc:["Which is NOT an application requirement?","Reference Checks — the packet does include 90 days of financial resources, organizational structure, and policies and procedures","Background checks ≠ reference checks. Background checks are required of staff; reference checks are required of nobody."]},
+{n:13,s:2,m:"M3 · Preparing to Apply",q:"You will need to ensure you have a location prior to applying for a Priority Service.",o:["True","False"],a:0,e:"True. The location comes first — it's part of the homework before the application, alongside reading the regulations and building the business plan."},
+{n:14,s:2,m:"M14 · Office of Human Rights",q:"In a nutshell, the assured rights outlined in the Virginia Code and in the Human Rights Regulations - which every individual receiving services in DBHDS licensed, operated, or funded programs have, are:",o:["Respect for basic human dignity","Services that are provided consistent with sound therapeutic practice","Protection to exercise legal, civil, and human rights while receiving services","All of the above"],a:3,e:"<b>All three.</b> Dignity, sound therapeutic practice, and protection to exercise legal/civil/human rights — that trio is the whole of the assured rights in one line."},
+{n:15,s:2,m:"M15 · HCBS",q:"Providers are not responsible for offering choices and opportunities for individuals to engage in community life.",o:["True","False"],a:1,e:"False — providers absolutely <b>are</b> responsible. Community engagement and real choice are the heart of the HCBS settings rule; that's the entire point of community-based over institutional care."},
+{n:16,s:2,m:"M6 · CONNECT",q:"How can a New Applicant or current Provider receive support from the CONNECT Help Desk?",o:["By contacting their Licensing Specialist","By clicking \"CONNECT Help Desk\" on the Office of Licensing website","By contacting their Human Rights Advocate","By contacting the Training Coordinator"],a:1,e:"Click <b>\"CONNECT Help Desk\" on the Office of Licensing website</b>. Your Licensing Specialist handles your inspection, not portal tickets — and the Human Rights Advocate and Training Coordinator are different roles entirely."},
+{n:17,s:2,m:"M14 · Office of Human Rights",q:"It is acceptable for a provider to manage an individual's money and give them an allowance of $10/week.",o:["True","False"],a:1,e:"False. Controlling someone's own money and rationing it is a <b>rights restriction</b> — it requires the formal restriction process with documented justification and review, not a house rule. Under human rights, the default is the individual controls their own funds."},
+{n:18,s:2,m:"M9 · CAPs in CONNECT",q:"After an Inspection or Investigation, who within the provider organization receives an email notification when a licensing report has been issued? Select all correct answers.",o:["Organization Owner","Main Authorized Contact (MAC)","Organization Program Director","Authorized Contacts with access rights to CAPs","Consultant"],a:1,ms:[1,3],e:"The <b>MAC</b> and any <b>Authorized Contacts with access rights to CAPs</b>. Owner, Program Director, and Consultant are <i>not</i> notified — notification follows CONNECT access rights, not job titles. Note this came up on both sittings as a select-all."},
+{n:19,s:2,m:"M5 · The Initial Application",q:"If your application is not determined to be a \"Completed Application\" it will be:",o:["Placed on the waitlist","Rejected","Processed on a delayed schedule","Forwarded to a Licensing Specialist"],a:1,e:"<b>Rejected.</b> Incomplete means rejected — you don't get a slower lane or a waitlist spot. Same family as: you can't submit and attach the missing documents later."},
+{n:20,s:2,m:"M10 · Modifications",q:"Service Modifications can be submitted before the initial service license is on an annual license.",o:["True","False"],a:1,e:"False. While you're on a <b>conditional</b> license you cannot add services or locations — modifications wait until you've earned the annual license. That's the whole constraint of the learner's-permit period."},
+{n:21,s:2,m:"M8 · CAPs",q:"The Department of Behavioral Health and Developmental Services (DBHDS) may decline to renew a provider's license for all of the following reasons, except:",o:["Failure to Submit a Renewal Application","Failure to obtain DMAS approval for billing","Health and Safety violations where concerns have not been resolved","Unavailable for Unannounced Inspections"],a:1,e:"<b>DMAS billing approval</b> is a Medicaid matter, not a licensing condition — DBHDS doesn't refuse to renew your license over it. The other three are genuine non-renewal grounds. Keep the lanes separate: DBHDS licenses, DMAS pays."},
+{n:22,s:2,m:"M14 · Office of Human Rights",q:"The Human Rights Regulations are encompassed in which chapter of the Virginia Code?",o:["12 VAC 35 -105","12 VAC 35 -115","12 VAC 35 -100","12 VAC 35 -120"],a:1,e:"<b>12VAC35-115.</b> The trio to keep straight: <b>105</b> general regs · <b>46</b> children's residential · <b>115</b> human rights. 100 and 120 are invented distractors."},
+{n:25,s:2,m:"M11 · Background Checks",q:"When will you get your unique provider Fieldprint code?",o:["When I contact the Background Investigations Unit","While my application is being processed","When the first person gets their fingerprints taken","Within 24 – 48 hours of completing the Fieldprint registration process (via email)"],a:3,e:"<b>Within 24–48 hours of completing Fieldprint registration</b>, delivered by email. You register first, then the code arrives — it isn't handed out by the Background Investigations Unit and doesn't wait on your application or your first fingerprinting."},
+{n:27,s:2,m:"M2 · Office of Licensing",q:"The Office of Licensing Health and Wellness Unit may contact the provider to clarify questions related to individual's protocols, an individual's ISP and other relative health and safety matters.",o:["True","False"],a:1,e:"The exam keys this <b>False</b>. ⚠️ Heads up: this item is <b>not covered in the study guide</b>, so there's no source passage to reason from — memorize the key rather than the logic. The general principle it leans on is that the Office of Licensing assesses regulatory compliance rather than consulting on an individual's clinical protocols or ISP."},
+{n:28,s:2,m:"M12 · Incident Reporting",q:"What are the two reporting sides of CHRIS? Select all correct answers.",o:["Office of Integrated Health","Office of Licensing","Office of Developmental Services","Office of Human Rights"],a:1,ms:[1,3],e:"<b>Office of Licensing</b> (death and serious incident reports) and <b>Office of Human Rights</b> (abuse, neglect, exploitation). Both feed the CHRIS Data Warehouse, and <b>reporting to one side does not satisfy the other</b>. Appeared on both sittings."},
+{n:29,s:2,m:"M4 · Provider Responsibilities",q:"The person assigned to the risk management function must complete department approved training related to risk management, understanding of individual risk screening, conducting investigations, root cause analysis, and the use of data to identify risk patterns and trends within 10 business days of hire.",o:["True","False"],a:1,e:"False — and the trap is the deadline, not the training list. Under 12VAC35-105-520.A the designee must have <b>already completed</b> the department-approved training; there is no 10-business-day grace period after hire. (The 10-business-day figure is bait borrowed from other timelines.)"}
+);
+/* items that appeared on BOTH sittings — highest-probability repeats */
+[7,9,10,13,15].forEach(function(n){var c=CONFIRMED.filter(function(x){return x.n===n&&(x.s||1)===1;})[0]; if(c)c.rep=true;});
+CONFIRMED.forEach(function(c){ if(!c.s)c.s=1; });
+
 /* one source of truth: fold the confirmed items into the main exam bank */
-CONFIRMED.forEach(function(c){ BANK.push({m:c.m,q:c.q,o:c.o,a:c.a,e:c.e,src:'✅ Confirmed · real exam Q'+c.n,lvl:'Confirmed',cn:c.n,cmiss:!!c.miss}); });
+CONFIRMED.forEach(function(c){ var b={m:c.m,q:c.q,o:c.o,a:c.a,e:c.e,src:'✅ Confirmed · real exam Q'+c.n+' (sitting '+(c.s||1)+')'+(c.rep?' · REPEATED on both sittings':''),lvl:'Confirmed',cn:c.n,cs:(c.s||1),cmiss:!!c.miss,crep:!!c.rep};
+  if(c.ms&&c.ms.length>1)b.ms=c.ms; BANK.push(b); });
 
 /* Flashcards: [front, back, memory-tip] */
 const FLASH = [
@@ -1200,16 +1234,21 @@ function fNext(){fIdx++;if(fIdx<curFlash.length)renderFlash();else goHome();}
 /* ---------- ✅ CONFIRMED QUESTIONS ---------- */
 function startConfirmed(){ show('confirmed'); renderConfirmed(); }
 function renderConfirmed(){ var w=$('cfList'); if(!w)return;
-  w.innerHTML=CONFIRMED.map(function(c){
-    var opts=c.o.map(function(o,i){return '<div class="cfopt'+(i===c.a?' ok':'')+'">'+(i===c.a?'✓ ':'')+o+'</div>';}).join('');
+  w.innerHTML=CONFIRMED.slice().sort(function(a,b){return ((a.s||1)-(b.s||1))||(a.n-b.n);}).map(function(c){
+    var opts=c.o.map(function(o,i){var ok=c.ms?(c.ms.indexOf(i)>=0):(i===c.a);return '<div class="cfopt'+(ok?' ok':'')+'">'+(ok?'✓ ':'')+o+'</div>';}).join('');
     return '<div class="cfq'+(c.miss?' miss':'')+'">'+
-      '<div class="cfhead"><span class="cfnum">Q'+c.n+'</span><span class="cfmod">'+c.m+'</span>'+
+      '<div class="cfhead"><span class="cfnum">Q'+c.n+'</span><span class="cfsit">sitting '+(c.s||1)+'</span><span class="cfmod">'+c.m+'</span>'+
+      (c.ms?'<span class="cfmulti">SELECT '+c.ms.length+'</span>':'')+
+      (c.rep?'<span class="cfrep">★ BOTH SITTINGS</span>':'')+
       (c.miss?'<span class="cfbadge">MISSED — PRIORITY</span>':'')+'</div>'+
       '<div class="cfstem">'+c.q+'</div>'+opts+
       '<div class="cfwhy"><b>Why:</b> '+c.e+'</div></div>';
   }).join(''); }
 function drillConfirmed(which){
-  var pool=BANK.filter(function(x){return x.lvl==='Confirmed'&&(which!=='miss'||x.cmiss);});
+  var pool=BANK.filter(function(x){ if(x.lvl!=='Confirmed')return false;
+    if(which==='miss')return !!x.cmiss;
+    if(which==='rep')return !!x.crep;
+    return true; });
   if(!pool.length){bump('No confirmed questions loaded.');return;}
   queue=shuffle(pool); mode='confirmed'; begin(); }
 
